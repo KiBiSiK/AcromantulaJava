@@ -1,11 +1,15 @@
 buildscript {
-    ext.kotlin_version = '1.4.21'
-    ext.jvm_target = '1.8'
-    ext.log4j2_version = '2.11.1'
-    ext.asm_version = '8.0.1'
+    ext {
+        kotlin_version = '1.5.0'
+        jvm_target = '1.8'
+        log4j2_version = '2.11.1'
+        asm_version = '8.0.1'
+        exposed_version = '0.31.1'
+    }
 
     repositories {
-        jcenter()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlin_version
@@ -20,7 +24,7 @@ group 'net.cydhra'
 version '1.0'
 
 repositories {
-    jcenter()
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
@@ -30,10 +34,13 @@ dependencies {
     implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.3.5'
 
     // acromantula
-    implementation group: 'com.github.Cydhra', name: 'acromantula', version: '9ad95e9a56'
+    implementation group: 'com.github.Cydhra', name: 'acromantula', version: 'fa5947fb6c'
+
     // apparently this is not a transitive dependency of 'acromantula'. I'm unsure why, but adding it here
     // specifically should fix it (one cannot access classes in acromantula derived from classes of exposed otherwise)
-    implementation group: 'org.jetbrains.exposed', name: 'exposed', version: '0.17.6'
+    implementation group: 'org.jetbrains.exposed', name: 'exposed-dao', version: exposed_version
+    implementation group: 'org.jetbrains.exposed', name: 'exposed-jdbc', version: exposed_version
+    implementation group: 'org.jetbrains.exposed', name: 'exposed-jodatime', version: exposed_version
 
     // bytecode
     implementation group: 'org.ow2.asm', name: 'asm', version: asm_version
@@ -48,5 +55,13 @@ dependencies {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
         kotlinOptions.jvmTarget = jvm_target
+    }
+}
+
+jar {
+    manifest {
+        attributes "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Main-Class": "net.cydhra.acromantula.AcromantulaServiceKt"
     }
 }

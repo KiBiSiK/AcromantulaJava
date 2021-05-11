@@ -1,9 +1,9 @@
 package net.cydhra.acromantula.java.database
 
-import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.IntIdTable
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IntIdTable
 
 internal object JavaFieldTable : IntIdTable("JavaFields") {
     val identifier = reference("identifier", JavaIdentifierTable)
