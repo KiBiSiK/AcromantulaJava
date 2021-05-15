@@ -1,4 +1,4 @@
-package net.cydhra.acromantula.java.mapping
+package net.cydhra.acromantula.java.mapping.types
 
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbolType
 import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
