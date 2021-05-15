@@ -3,7 +3,7 @@ buildscript {
         kotlin_version = '1.5.0'
         jvm_target = '1.8'
         log4j2_version = '2.11.1'
-        asm_version = '8.0.1'
+        asm_version = '9.1'
         exposed_version = '0.31.1'
     }
 
@@ -35,12 +35,6 @@ dependencies {
 
     // acromantula
     implementation group: 'com.github.Cydhra', name: 'acromantula', version: 'fa5947fb6c'
-
-    // apparently this is not a transitive dependency of 'acromantula'. I'm unsure why, but adding it here
-    // specifically should fix it (one cannot access classes in acromantula derived from classes of exposed otherwise)
-    implementation group: 'org.jetbrains.exposed', name: 'exposed-dao', version: exposed_version
-    implementation group: 'org.jetbrains.exposed', name: 'exposed-jdbc', version: exposed_version
-    implementation group: 'org.jetbrains.exposed', name: 'exposed-jodatime', version: exposed_version
 
     // bytecode
     implementation group: 'org.ow2.asm', name: 'asm', version: asm_version
