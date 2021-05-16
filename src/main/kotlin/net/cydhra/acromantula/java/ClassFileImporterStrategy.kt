@@ -6,7 +6,7 @@ import java.io.PushbackInputStream
 
 internal class ClassFileImporterStrategy : ImporterStrategy {
 
-    override fun handles(fileName: String, fileContent: PushbackInputStream): Boolean {
+    override suspend fun handles(fileName: String, fileContent: PushbackInputStream): Boolean {
         var readSize: Int = 0
         val buffer = ByteArray(4)
 
@@ -24,7 +24,7 @@ internal class ClassFileImporterStrategy : ImporterStrategy {
         }
     }
 
-    override fun import(parent: FileEntity?, fileName: String, fileContent: PushbackInputStream) {
+    override suspend fun import(parent: FileEntity?, fileName: String, fileContent: PushbackInputStream) {
         // TODO
     }
 }
