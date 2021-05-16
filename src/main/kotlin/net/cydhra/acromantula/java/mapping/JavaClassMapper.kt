@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.TypeInsnNode
+import java.io.PushbackInputStream
 
 /**
  * Generate mappings for symbols and references within a class file
@@ -22,11 +23,11 @@ class JavaClassMapper : MappingFactory {
 
     override val name: String = "java-class-mapper"
 
-    override fun handles(file: FileEntity, content: ByteArray): Boolean {
+    override fun handles(file: FileEntity, content: PushbackInputStream): Boolean {
         return checkMagicBytes(content)
     }
 
-    override suspend fun generateMappings(file: FileEntity, content: ByteArray) {
+    override suspend fun generateMappings(file: FileEntity, content: PushbackInputStream) {
         val classNode = ClassNode()
         try {
             ClassReader(content).accept(classNode, ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES)
@@ -83,11 +84,17 @@ class JavaClassMapper : MappingFactory {
         }
     }
 
-    private fun checkMagicBytes(content: ByteArray): Boolean {
-        if (content.size < 4)
-            return false
+    private fun checkMagicBytes(content: PushbackInputStream): Boolean {
+        val magic = ByteArray(4)
+        val readSize = content.read(magic)
 
-        return content.copyOfRange(0, 4)
-            .contentEquals(byteArrayOf(0xCA.toByte(), 0xFE.toByte(), 0xBA.toByte(), 0xBE.toByte()))
+        try {
+            if (readSize < 4)
+                return false
+
+            return magic.contentEquals(byteArrayOf(0xCA.toByte(), 0xFE.toByte(), 0xBA.toByte(), 0xBE.toByte()))
+        } finally {
+            content.unread(magic)
+        }
     }
 }
