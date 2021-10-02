@@ -1,10 +1,10 @@
 buildscript {
     ext {
-        kotlin_version = '1.5.0'
+        kotlin_version = '1.5.+'
         jvm_target = '1.8'
         log4j2_version = '2.11.1'
         asm_version = '9.1'
-        exposed_version = '0.31.1'
+        exposed_version = '0.35.+'
     }
 
     repositories {
@@ -31,7 +31,7 @@ repositories {
 dependencies {
     // kotlin
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.3.5'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlin_version
 
     // acromantula
     implementation group: 'com.github.Cydhra', name: 'acromantula', version: 'fa5947fb6c'
