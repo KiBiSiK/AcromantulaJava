@@ -7,7 +7,6 @@ import net.cydhra.acromantula.java.mapping.types.MethodNameSymbolType
 import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 
 /**
@@ -19,11 +18,6 @@ class MapperClassVisitor(private val file: FileEntity) {
      */
     private lateinit var identity: String
 
-    /**
-     * Class name database symbol
-     */
-    private lateinit var symbol: ContentMappingSymbol
-
     suspend fun visit(
         version: Int,
         access: Int,
@@ -33,7 +27,7 @@ class MapperClassVisitor(private val file: FileEntity) {
         interfaces: Array<out String>?
     ) {
         this.identity = constructClassIdentity(name)
-        this.symbol = MapperFeature.insertSymbolIntoDatabase(
+        MapperFeature.insertSymbolIntoDatabase(
             ClassNameSymbolType,
             this.file,
             this.identity,
@@ -75,6 +69,6 @@ class MapperClassVisitor(private val file: FileEntity) {
             null
         )
 
-        return MapperMethodVisitor(file, symbol)
+        return MapperMethodVisitor(file, this.identity)
     }
 }
