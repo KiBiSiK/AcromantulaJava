@@ -1,9 +1,7 @@
 package net.cydhra.acromantula.java.mapping.visitors
 
 import net.cydhra.acromantula.features.mapper.MapperFeature
-import net.cydhra.acromantula.java.mapping.types.FieldInstructionReferenceType
-import net.cydhra.acromantula.java.mapping.types.MethodInstructionReferenceType
-import net.cydhra.acromantula.java.mapping.types.TypeInstructionReferenceType
+import net.cydhra.acromantula.java.mapping.types.*
 import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
@@ -19,11 +17,14 @@ import net.cydhra.acromantula.workspace.filesystem.FileEntity
 class MapperMethodVisitor(private val file: FileEntity, private val owner: String) {
     suspend fun visitTypeInsn(opcode: Int, type: String) {
         val typeIdentity = constructClassIdentity(type)
+        MapperFeature.insertSymbolIntoDatabase(ClassNameSymbolType, null, typeIdentity, type, null)
         MapperFeature.insertReferenceIntoDatabase(TypeInstructionReferenceType, file, typeIdentity, this.owner, null)
     }
 
     suspend fun visitFieldInsn(opcode: Int, owner: String, name: String, descriptor: String) {
         val fieldIdentity = constructFieldIdentity(constructClassIdentity(owner), name, descriptor)
+        MapperFeature.insertSymbolIntoDatabase(FieldNameSymbolType, null, fieldIdentity, name, null)
+        MapperFeature.insertSymbolIntoDatabase(ClassNameSymbolType, null, constructClassIdentity(owner), owner, null)
         MapperFeature.insertReferenceIntoDatabase(FieldInstructionReferenceType, file, fieldIdentity, this.owner, null)
     }
 
@@ -35,6 +36,8 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
         isInterface: Boolean
     ) {
         val methodIdentity = constructMethodIdentity(owner, name, descriptor)
+        MapperFeature.insertSymbolIntoDatabase(MethodNameSymbolType, null, methodIdentity, name, null)
+        MapperFeature.insertSymbolIntoDatabase(ClassNameSymbolType, null, constructClassIdentity(owner), owner, null)
         MapperFeature.insertReferenceIntoDatabase(
             MethodInstructionReferenceType,
             file,
