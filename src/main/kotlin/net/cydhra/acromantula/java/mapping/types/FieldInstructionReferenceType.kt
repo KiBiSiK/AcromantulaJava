@@ -9,4 +9,7 @@ object FieldInstructionReferenceType : AcromantulaReferenceType("java.insn.field
         TODO("not implemented")
     }
 
+    override fun stringRepresentation(ref: ContentMappingReference): String {
+        return ref.file.name + ": " + (ref.owner?.let { "[${it.name}] " } ?: "") + (ref.location ?: "")
+    }
 }
