@@ -60,10 +60,13 @@ class ClassAssembly private constructor(private val assembledClassNode: ClassNod
                     }
                 }
 
-
                 // TODO handle modules
                 assembledClassNode.fields.forEach { field ->
                     FieldAssembly.fromFieldNode(field).appendToDocument(this@block)
+                }
+
+                assembledClassNode.methods.forEach { methodNode ->
+                    MethodAssembly.fromMethodNode(methodNode).appendToDocument(this@block)
                 }
 
                 footer {

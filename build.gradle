@@ -39,6 +39,7 @@ dependencies {
     // bytecode
     implementation group: 'org.ow2.asm', name: 'asm', version: asm_version
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: asm_version
+    implementation group: 'org.bitbucket.mstrobel', name: 'procyon-compilertools', version: '0.5.36'
 
     // logging
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4j2_version
