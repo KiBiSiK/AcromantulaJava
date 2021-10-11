@@ -22,6 +22,9 @@ class FieldAssembly private constructor(private val field: FieldNode) : Assembly
         private const val D_FIELD_INVIS_ANNOTATION = "invis_annotation"
         private const val D_FIELD_VIS_ANNOTATION = "annotation"
 
+        private const val D_FIELD_INVIS_TYPE_ANNOTATION = "invis_type_annotation"
+        private const val D_FIELD_VIS_TYPE_ANNOTATION = "type_annotation"
+
         fun fromFieldNode(field: FieldNode): FieldAssembly {
             return FieldAssembly(field)
         }
@@ -48,6 +51,7 @@ class FieldAssembly private constructor(private val field: FieldNode) : Assembly
                             content = attr.type
                         }
                         f {
+                            designation = D_FIELD_ATTRIBUTE_CONTENT
                             +"= ???"
                         }
                     }
@@ -74,11 +78,30 @@ class FieldAssembly private constructor(private val field: FieldNode) : Assembly
                 }
             }
 
-            // TODO type annotations
-
             line {
                 f(STYLE_KEYWORD, D_FIELD_VISIBILITY) { +visibilityToString(field.access) }
                 f(STYLE_KEYWORD, D_FIELD_MODIFIER) { +modifiersToString(field.access) }
+
+                // dump invisible type annotations
+                if (field.invisibleTypeAnnotations != null) {
+                    field.invisibleTypeAnnotations.forEach { annotationNode ->
+                        f {
+                            designation = D_FIELD_INVIS_TYPE_ANNOTATION
+                            AnnotationAssembly.fromAnnotationNode(annotationNode).appendToLine(this)
+                        }
+                    }
+                }
+
+                // dump visible type annotations
+                if (field.visibleTypeAnnotations != null) {
+                    field.visibleTypeAnnotations.forEach { annotationNode ->
+                        f {
+                            designation = D_FIELD_VIS_TYPE_ANNOTATION
+                            AnnotationAssembly.fromAnnotationNode(annotationNode).appendToLine(this)
+                        }
+                    }
+                }
+
                 f(STYLE_TYPE, D_FIELD_TYPE) { +field.desc }
                 f(STYLE_IDENTIFIER, D_FIELD_NAME) { +field.name }
 

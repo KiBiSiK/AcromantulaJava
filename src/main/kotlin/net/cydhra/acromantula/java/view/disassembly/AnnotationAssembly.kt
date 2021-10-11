@@ -20,7 +20,7 @@ class AnnotationAssembly private constructor(private val annotationNode: Annotat
         }
     }
 
-    fun appendToLine(line: AcromantulaDocumentBlock.LineBuilder) {
+    fun appendToLine(line: AcromantulaDocumentBlock.FragmentBuilder) {
         line.f(STYLE_ANNOTATION, D_ANNOTATION_DESCRIPTOR) {
             content = annotationNode.desc
         }
