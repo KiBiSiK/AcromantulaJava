@@ -1,8 +1,10 @@
 package net.cydhra.acromantula.java
 
 import net.cydhra.acromantula.features.mapper.MapperFeature
+import net.cydhra.acromantula.features.view.GenerateViewFeature
 import net.cydhra.acromantula.java.mapping.JavaClassMapper
 import net.cydhra.acromantula.java.mapping.types.*
+import net.cydhra.acromantula.java.view.disassembly.DisassemblyViewGenerator
 import net.cydhra.acromantula.plugins.AcromantulaPlugin
 import org.apache.logging.log4j.LogManager
 
@@ -26,6 +28,8 @@ class JavaPlugin : AcromantulaPlugin {
         MapperFeature.registerReferenceType(TypeInstructionReferenceType, ClassNameSymbolType)
         MapperFeature.registerReferenceType(FieldInstructionReferenceType, FieldNameSymbolType)
         MapperFeature.registerReferenceType(MethodInstructionReferenceType, MethodNameSymbolType)
+
+        GenerateViewFeature.registerViewGenerator(DisassemblyViewGenerator)
 
         logger.info("registered java plugin")
     }

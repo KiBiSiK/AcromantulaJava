@@ -27,7 +27,7 @@ class ClassAssembly private constructor(private val assembledClassNode: ClassNod
 
     }
 
-    private fun generateDocument(): AcromantulaDocument {
+    fun generateDocument(): AcromantulaDocument {
         return AcromantulaDocument().apply {
             block {
                 header {
