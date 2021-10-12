@@ -15,7 +15,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
         private const val D_METHOD_SIGNATURE = "signature"
         private const val D_METHOD_VISIBILITY = "visibility"
         private const val D_METHOD_MODIFIER = "modifier"
-        private const val D_METHOD_DESCRIPTOR = "type"
+        private const val D_METHOD_DESCRIPTOR = "desc"
         private const val D_METHOD_NAME = "name"
         private const val D_METHOD_EXCEPTION = "exception"
 
@@ -113,7 +113,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                             f { +"${it.index}:" }
                             if (it.signature != null)
                                 f(STYLE_ANNOTATION) { +it.signature }
-                            f(STYLE_TYPE) { +it.desc }
+                            f(STYLE_DESCRIPTOR) { +it.desc }
                             f(STYLE_IDENTIFIER) { +it.name }
                         }
                     }
@@ -174,7 +174,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                     STYLE_LITERAL_NUMBER,
                     D_METHOD_INSTRUCTION_OPERAND
                 ) { +instruction.`var`.toString() }
-                is TypeInsnNode -> f(STYLE_TYPE, D_METHOD_INSTRUCTION_OPERAND) {
+                is TypeInsnNode -> f(STYLE_DESCRIPTOR, D_METHOD_INSTRUCTION_OPERAND) {
                     // TODO type annotations
                     +instruction.desc
                 }
@@ -184,7 +184,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                     f(STYLE_TYPE) { +instruction.owner }
                     f(STYLE_PUNCTUATION) { +"::" }
                     f(STYLE_IDENTIFIER) { +instruction.name }
-                    f { +instruction.desc }
+                    f(STYLE_DESCRIPTOR) { +instruction.desc }
                 }
                 is MethodInsnNode -> f {
                     // TODO type annotations
@@ -194,7 +194,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                     f(STYLE_TYPE) { +instruction.owner }
                     f(STYLE_PUNCTUATION) { +"::" }
                     f(STYLE_IDENTIFIER) { +instruction.name }
-                    f { +instruction.desc }
+                    f(STYLE_DESCRIPTOR) { +instruction.desc }
                 }
                 is InvokeDynamicInsnNode -> f {
                     // TODO type annotations
@@ -213,7 +213,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
 
                     f(STYLE_PUNCTUATION) { +"::" }
                     f(STYLE_IDENTIFIER) { +instruction.name }
-                    f { +instruction.desc }
+                    f(STYLE_DESCRIPTOR) { +instruction.desc }
                 }
                 is JumpInsnNode -> f {
                     +instruction.label.toString()
@@ -269,7 +269,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                     f(STYLE_LITERAL_NUMBER) {
                         +instruction.dims.toString()
                     }
-                    f(STYLE_TYPE) {
+                    f(STYLE_DESCRIPTOR) {
                         +instruction.desc
                     }
                 }
@@ -306,7 +306,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
         fragment.f(STYLE_TYPE) { +handle.owner }
         fragment.f(STYLE_PUNCTUATION) { +"::" }
         fragment.f(STYLE_TYPE) { +handle.name }
-        fragment.f { +handle.desc }
+        fragment.f(STYLE_DESCRIPTOR) { +handle.desc }
 
         fragment.f(STYLE_PARENTHESIS) { +"]" }
     }
