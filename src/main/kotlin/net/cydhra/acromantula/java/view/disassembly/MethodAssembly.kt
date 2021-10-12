@@ -279,29 +279,31 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
 
     private fun dumpHandle(fragment: AcromantulaDocumentBlock.FragmentBuilder, handle: Handle) {
         fragment.f {
-            when (handle.tag) {
-                Opcodes.H_GETFIELD -> +"getfield"
-                Opcodes.H_GETSTATIC -> +"getstatic"
-                Opcodes.H_PUTFIELD -> +"putfield"
-                Opcodes.H_PUTSTATIC -> +"putstatic"
-                Opcodes.H_INVOKEVIRTUAL -> +"invokevirtual"
-                Opcodes.H_INVOKESTATIC -> +"invokestatic"
-                Opcodes.H_INVOKESPECIAL -> +"invokespecial"
-                Opcodes.H_NEWINVOKESPECIAL -> +"new"
-                Opcodes.H_INVOKEINTERFACE -> +"invokeinterface"
-                else -> {
-                    style = STYLE_ERROR
-                    +"error: unsupported method (${handle.tag})"
+            f {
+                when (handle.tag) {
+                    Opcodes.H_GETFIELD -> +"getfield"
+                    Opcodes.H_GETSTATIC -> +"getstatic"
+                    Opcodes.H_PUTFIELD -> +"putfield"
+                    Opcodes.H_PUTSTATIC -> +"putstatic"
+                    Opcodes.H_INVOKEVIRTUAL -> +"invokevirtual"
+                    Opcodes.H_INVOKESTATIC -> +"invokestatic"
+                    Opcodes.H_INVOKESPECIAL -> +"invokespecial"
+                    Opcodes.H_NEWINVOKESPECIAL -> +"new"
+                    Opcodes.H_INVOKEINTERFACE -> +"invokeinterface"
+                    else -> {
+                        style = STYLE_ERROR
+                        +"error: unsupported method (${handle.tag})"
+                    }
                 }
             }
+
+            f(STYLE_PARENTHESIS) { +"[" }
+            f(STYLE_TYPE) { +handle.owner }
+            f(STYLE_PUNCTUATION) { +"::" }
+            f(STYLE_TYPE) { +handle.name }
+            f(STYLE_DESCRIPTOR) { +handle.desc }
+
+            f(STYLE_PARENTHESIS) { +"]" }
         }
-
-        fragment.f(STYLE_PARENTHESIS) { +"[" }
-        fragment.f(STYLE_TYPE) { +handle.owner }
-        fragment.f(STYLE_PUNCTUATION) { +"::" }
-        fragment.f(STYLE_TYPE) { +handle.name }
-        fragment.f(STYLE_DESCRIPTOR) { +handle.desc }
-
-        fragment.f(STYLE_PARENTHESIS) { +"]" }
     }
 }
