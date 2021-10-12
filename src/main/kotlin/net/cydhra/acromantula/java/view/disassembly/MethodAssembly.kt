@@ -105,7 +105,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
             // TODO method.annotationDefault
 
             // TODO: designations, annotations, scopes
-            if (method.localVariables != null) {
+            if (method.localVariables != null && method.localVariables.isNotEmpty()) {
                 block {
                     header { line { +"Local Variables:" } }
                     method.localVariables.forEach {
