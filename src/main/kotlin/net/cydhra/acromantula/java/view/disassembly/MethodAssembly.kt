@@ -155,7 +155,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
         block.line {
             designation = D_METHOD_INSTRUCTION
 
-            if (instruction is LabelNode || instruction is FrameNode) {
+            if (instruction is LabelNode || instruction is FrameNode || instruction is LineNumberNode) {
                 // TODO handle labels and frames
                 f { +"todo: label/frames" }
                 return@line

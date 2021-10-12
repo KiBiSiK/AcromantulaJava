@@ -30,7 +30,7 @@ object DisassemblyViewGenerator : ViewGeneratorStrategy {
     override fun generateView(fileEntity: FileEntity): FileRepresentation {
         val reader = ClassReader(WorkspaceService.getFileContent(fileEntity))
         val node = ClassNode()
-        reader.accept(node, ClassReader.SKIP_DEBUG)
+        reader.accept(node, 0)
 
         val document = ClassAssembly.fromClassNode(node).generateDocument().finishDocument()
         document.normalizeDocument()
