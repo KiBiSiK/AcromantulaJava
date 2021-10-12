@@ -285,15 +285,21 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
 
     private fun dumpHandle(fragment: AcromantulaDocumentBlock.FragmentBuilder, handle: Handle) {
         fragment.f {
-            checkFlag(handle.tag, Opcodes.H_GETFIELD) { +" getfield" }
-            checkFlag(handle.tag, Opcodes.H_GETSTATIC) { +"getstatic" }
-            checkFlag(handle.tag, Opcodes.H_PUTFIELD) { +"putfield" }
-            checkFlag(handle.tag, Opcodes.H_PUTSTATIC) { +"putstatic" }
-            checkFlag(handle.tag, Opcodes.H_INVOKEVIRTUAL) { +"invokevirtual" }
-            checkFlag(handle.tag, Opcodes.H_INVOKESTATIC) { +"invokestatic" }
-            checkFlag(handle.tag, Opcodes.H_INVOKESPECIAL) { +"invokespecial" }
-            checkFlag(handle.tag, Opcodes.H_NEWINVOKESPECIAL) { +"new" }
-            checkFlag(handle.tag, Opcodes.H_INVOKEINTERFACE) { +"invokeinterface" }
+            when (handle.tag) {
+                Opcodes.H_GETFIELD -> +"getfield"
+                Opcodes.H_GETSTATIC -> +"getstatic"
+                Opcodes.H_PUTFIELD -> +"putfield"
+                Opcodes.H_PUTSTATIC -> +"putstatic"
+                Opcodes.H_INVOKEVIRTUAL -> +"invokevirtual"
+                Opcodes.H_INVOKESTATIC -> +"invokestatic"
+                Opcodes.H_INVOKESPECIAL -> +"invokespecial"
+                Opcodes.H_NEWINVOKESPECIAL -> +"new"
+                Opcodes.H_INVOKEINTERFACE -> +"invokeinterface"
+                else -> {
+                    style = STYLE_ERROR
+                    +"error: unsupported method (${handle.tag})"
+                }
+            }
         }
 
         fragment.f(STYLE_PARENTHESIS) { +"[" }
