@@ -204,7 +204,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                     for (bsmArg in instruction.bsmArgs) {
                         when (bsmArg) {
                             is String -> f(STYLE_LITERAL_STRING) { +bsmArg.toString() }
-                            is Type -> dumpType(this, bsmArg)
+                            is Type -> f(STYLE_TYPE) { +bsmArg.descriptor }
                             is Handle -> dumpHandle(this, bsmArg)
                             else -> f(STYLE_LITERAL_NUMBER) { +bsmArg.toString() }
                         }
@@ -223,7 +223,7 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                 }
                 is LdcInsnNode -> when (instruction.cst) {
                     is String -> f(STYLE_LITERAL_STRING) { +instruction.cst.toString() }
-                    is Type -> dumpType(this, instruction.cst as Type)
+                    is Type -> f(STYLE_TYPE) { +(instruction.cst as Type).descriptor }
                     else -> f(STYLE_LITERAL_NUMBER) { +instruction.cst.toString() }
                 }
 
@@ -275,12 +275,6 @@ class MethodAssembly private constructor(private val method: MethodNode) : Assem
                 }
             }
         }
-    }
-
-    private fun dumpType(fragment: AcromantulaDocumentBlock.FragmentBuilder, type: Type) {
-        fragment.f { +"todo better dump; " }
-        fragment.f { type.toString() }
-        // TODO dump type
     }
 
     private fun dumpHandle(fragment: AcromantulaDocumentBlock.FragmentBuilder, handle: Handle) {
