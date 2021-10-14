@@ -1,4 +1,4 @@
-package net.cydhra.acromantula.java.transfomers.analysis.interpreters
+package net.cydhra.acromantula.java.transfomers.analysis.cp
 
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -8,7 +8,7 @@ import org.objectweb.asm.tree.analysis.Interpreter
 /**
  * Interpreter that operates on the lattice of abstract values denoting if they are const or not.
  */
-class ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
+object ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
 
     override fun newValue(type: Type?): CPLatticeValue? {
         return if (type == null || type == Type.VOID_TYPE) null else CPUndefined(type)
@@ -93,7 +93,7 @@ class ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
     ): CPLatticeValue {
         return when (insn.opcode) {
             Opcodes.IALOAD, Opcodes.LALOAD, Opcodes.FALOAD, Opcodes.DALOAD,
-            Opcodes.AALOAD, Opcodes.BALOAD, Opcodes.CALOAD, Opcodes.SALOAD -> CPNoConst()
+            Opcodes.AALOAD, Opcodes.BALOAD, Opcodes.CALOAD, Opcodes.SALOAD -> CPNoConst() // todo array handling
             Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD -> eval { value1 + value2 }
             Opcodes.ISUB, Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB -> eval { value1 - value2 }
             Opcodes.IMUL, Opcodes.LMUL, Opcodes.FMUL, Opcodes.DMUL -> eval { value1 * value2 }

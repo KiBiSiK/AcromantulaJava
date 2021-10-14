@@ -1,4 +1,4 @@
-package net.cydhra.acromantula.java.transfomers.analysis.interpreters
+package net.cydhra.acromantula.java.transfomers.analysis.cp
 
 /**
  * Evaluate an expression given in form of a lambda function that operates on [lattice values][CPLatticeValue]. The

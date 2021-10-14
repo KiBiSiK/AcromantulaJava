@@ -1,4 +1,4 @@
-package net.cydhra.acromantula.java.transfomers.analysis.interpreters
+package net.cydhra.acromantula.java.transfomers.analysis.cp
 
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.analysis.Value
