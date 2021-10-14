@@ -9,10 +9,12 @@ import org.objectweb.asm.tree.analysis.Value
  * through subtypes of this abstract type.
  */
 abstract class CPLatticeValue(val type: Type?) : Value {
-    // TODO: eval function, etc
-
     override fun getSize(): Int {
-        return this.type?.size ?: 0
+        if (this.type == Type.DOUBLE_TYPE || this.type == Type.LONG_TYPE) {
+            return 2
+        }
+
+        return 1
     }
 }
 
@@ -23,6 +25,8 @@ class CPUndefined(type: Type?) : CPLatticeValue(type) {
     override fun equals(other: Any?): Boolean {
         return other != null && other is CPUndefined
     }
+
+    override fun toString(): String = "Undefined[$type]"
 }
 
 /**
@@ -32,6 +36,8 @@ class CPNoConst : CPLatticeValue(null) {
     override fun equals(other: Any?): Boolean {
         return other != null && other is CPNoConst
     }
+
+    override fun toString(): String = "NoConst"
 }
 
 /**
@@ -43,6 +49,8 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
     override fun equals(other: Any?): Boolean {
         return other != null && other is CPConstValue<*> && other.type == this.type && other.value == this.value
     }
+
+    override fun toString(): String = "Const[$type: $value]"
 
     fun add(other: CPConstValue<*>): CPConstValue<*> {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not numeric" }
