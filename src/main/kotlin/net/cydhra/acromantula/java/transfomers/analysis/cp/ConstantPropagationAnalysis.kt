@@ -46,7 +46,7 @@ class ConstantPropagationAnalysis {
                     logger().debug("[STACK] $i: ${currentFrame.getStack(i)}")
                 }
 
-                if (values.all { it is CPConstValue<*> }) {
+                if (values.all { it is CPConstValue }) {
                     logger().debug("all operands are constant:")
                     values.forEachIndexed { i, value ->
                         logger().debug("$i: $value")
@@ -55,7 +55,7 @@ class ConstantPropagationAnalysis {
                     val simulatedFrame = Frame(currentFrame)
                     simulatedFrame.execute(currentInstruction, ConstantValueInterpreter)
                     val resultFrame = simulatedFrame.getStack(simulatedFrame.stackSize - 1)
-                    val constantValue = (resultFrame as CPConstValue<*>)
+                    val constantValue = (resultFrame as CPConstValue)
 
                     logger().debug(
                         "we pop() ${pops.size} times and " +
@@ -141,7 +141,7 @@ class ConstantPropagationAnalysis {
      * Choose an appropriate push operation for the given constant value. Avoids LDC-Operations and uses ICONST_N
      * special instructions
      */
-    private fun choosePushOperation(value: CPConstValue<*>): AbstractInsnNode {
+    private fun choosePushOperation(value: CPConstValue): AbstractInsnNode {
         return when (value.type) {
             Type.INT_TYPE -> {
                 when (value.value as Int) {

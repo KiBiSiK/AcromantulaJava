@@ -27,7 +27,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).add(other as CPConstValue<*>)
+        return (this as CPConstValue).add(other as CPConstValue)
     }
 
     /**
@@ -40,7 +40,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).sub(other as CPConstValue<*>)
+        return (this as CPConstValue).sub(other as CPConstValue)
     }
 
     /**
@@ -53,7 +53,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).mul(other as CPConstValue<*>)
+        return (this as CPConstValue).mul(other as CPConstValue)
     }
 
     /**
@@ -66,7 +66,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).div(other as CPConstValue<*>)
+        return (this as CPConstValue).div(other as CPConstValue)
     }
 
     /**
@@ -79,7 +79,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).remainder(other as CPConstValue<*>)
+        return (this as CPConstValue).remainder(other as CPConstValue)
     }
 
     /**
@@ -92,7 +92,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).shiftRight(other as CPConstValue<*>)
+        return (this as CPConstValue).shiftRight(other as CPConstValue)
     }
 
     /**
@@ -105,7 +105,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).unsignedShiftRight(other as CPConstValue<*>)
+        return (this as CPConstValue).unsignedShiftRight(other as CPConstValue)
     }
 
     /**
@@ -118,7 +118,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).shiftLeft(other as CPConstValue<*>)
+        return (this as CPConstValue).shiftLeft(other as CPConstValue)
     }
 
     /**
@@ -131,7 +131,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).bitwiseAnd(other as CPConstValue<*>)
+        return (this as CPConstValue).bitwiseAnd(other as CPConstValue)
     }
 
     /**
@@ -144,7 +144,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).bitwiseOr(other as CPConstValue<*>)
+        return (this as CPConstValue).bitwiseOr(other as CPConstValue)
     }
 
     /**
@@ -157,7 +157,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).bitwiseXor(other as CPConstValue<*>)
+        return (this as CPConstValue).bitwiseXor(other as CPConstValue)
     }
 
     /**
@@ -170,7 +170,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).longCompare(other as CPConstValue<*>)
+        return (this as CPConstValue).longCompare(other as CPConstValue)
     }
 
     /**
@@ -183,7 +183,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).floatingCompareGreater(other as CPConstValue<*>)
+        return (this as CPConstValue).floatingCompareGreater(other as CPConstValue)
     }
 
     /**
@@ -196,7 +196,7 @@ object ConstantLatticeAlgebra {
         if (checkTop(this, other))
             return CPNoConst()
 
-        return (this as CPConstValue<*>).floatingCompareLesser(other as CPConstValue<*>)
+        return (this as CPConstValue).floatingCompareLesser(other as CPConstValue)
     }
 
     fun neg(value: CPLatticeValue): CPLatticeValue {
@@ -206,6 +206,6 @@ object ConstantLatticeAlgebra {
         if (checkTop(value))
             return CPNoConst()
 
-        return (value as CPConstValue<*>).negate()
+        return (value as CPConstValue).negate()
     }
 }
