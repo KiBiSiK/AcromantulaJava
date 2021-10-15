@@ -1,5 +1,6 @@
 package net.cydhra.acromantula.java.transfomers.analysis.cp
 
+import net.cydhra.acromantula.java.util.returnType
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
@@ -189,12 +190,4 @@ object ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
 
         return CPNoConst()
     }
-
-    /**
-     * Calculate the return-type of a method descriptor
-     */
-    private fun returnType(methodDescriptor: String): String {
-        return methodDescriptor.substring(methodDescriptor.lastIndexOf(')') + 1)
-    }
-
 }
