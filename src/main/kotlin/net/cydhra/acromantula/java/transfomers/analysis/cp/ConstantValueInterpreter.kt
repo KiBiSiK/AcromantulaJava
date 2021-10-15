@@ -81,7 +81,7 @@ object ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
             Opcodes.MONITORENTER, Opcodes.MONITOREXIT, Opcodes.IFNULL, Opcodes.IFNONNULL -> CPNoConst();
             // TODO more array handling, object handling, null handling
 
-            Opcodes.NEWARRAY -> eval { newArray((insn as IntInsnNode).operand, value) }
+            Opcodes.NEWARRAY -> CPNoConst()
             Opcodes.ANEWARRAY -> CPNoConst()
             Opcodes.ARRAYLENGTH -> eval { value.length() }
 
