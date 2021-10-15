@@ -147,12 +147,15 @@ class ConstantPropagationAnalysis {
                         || returnType == Type.FLOAT_TYPE || returnType == Type.DOUBLE_TYPE
                     ) {
                         val pops = parameters.map { PopVariant.getBySize(it.size) }.toMutableList()
+                        val values = parameters.indices
+                            .map { getStackValue(currentFrameState, parameters.size - it - 1) }.toMutableList()
                         if (instruction.opcode != Opcodes.INVOKESTATIC) {
-                            // add another pop for the object instance
+                            // add another pop for the object instance and the value for the object instance
                             pops.add(0, PopVariant.POP)
+                            values.add(0, getStackValue(currentFrameState, parameters.size))
                         }
 
-                        return Pair(pops, (0..parameters.size).map { getStackValue(currentFrameState, it) }.toList())
+                        return Pair(pops, values)
                     }
                 }
             }
