@@ -4,6 +4,18 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.tree.analysis.Value
 
 /**
+ * Additional type for strings, since it isn't included in the default type instances within [Type]
+ */
+val STRING_TYPE = Type.getType(String::class.java)
+
+/**
+ * @return true, if the type instance represents an array type
+ */
+fun Type.isArrayType(): Boolean {
+    return this.descriptor.startsWith('[')
+}
+
+/**
  * Constant Propagation lattice value. The lattice has three different types of values: UNDEFINED (lattice bottom),
  * CONST_VAL (with any kind of constant value from the target type space), and NO_CONST. All of them are expressed
  * through subtypes of this abstract type.
@@ -44,15 +56,15 @@ class CPNoConst : CPLatticeValue(null) {
  * Any value of the [type]-defined value space. An instance of this class indicates that the associated variable is
  * of constant value.
  */
-class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
+class CPConstValue(type: Type?, val value: Any?) : CPLatticeValue(type) {
 
     override fun equals(other: Any?): Boolean {
-        return other != null && other is CPConstValue<*> && other.type == this.type && other.value == this.value
+        return other != null && other is CPConstValue && other.type == this.type && other.value == this.value
     }
 
     override fun toString(): String = "Const[$type: $value]"
 
-    fun add(other: CPConstValue<*>): CPConstValue<*> {
+    fun add(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not numeric" }
         check(this.type == other.type) { "tried to add values with different types" }
 
@@ -65,7 +77,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun sub(other: CPConstValue<*>): CPConstValue<*> {
+    fun sub(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not numeric" }
         check(this.type == other.type) { "tried to add values with different types" }
 
@@ -78,7 +90,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun mul(other: CPConstValue<*>): CPConstValue<*> {
+    fun mul(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not numeric" }
         check(this.type == other.type) { "tried to add values with different types" }
 
@@ -91,7 +103,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun div(other: CPConstValue<*>): CPConstValue<*> {
+    fun div(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not numeric" }
         check(this.type == other.type) { "tried to add values with different types" }
 
@@ -104,7 +116,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun remainder(other: CPConstValue<*>): CPConstValue<*> {
+    fun remainder(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not numeric" }
         check(this.type == other.type) { "tried to add values with different types" }
 
@@ -117,7 +129,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun negate(): CPConstValue<*> {
+    fun negate(): CPConstValue {
         check(this.value is Number) { "tried to eval value that is not numeric" }
 
         return when (this.type) {
@@ -129,7 +141,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun shiftRight(other: CPConstValue<*>): CPConstValue<*> {
+    fun shiftRight(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not integers" }
         check(this.type == other.type) { "tried to add values with different types" }
 
@@ -140,7 +152,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun unsignedShiftRight(other: CPConstValue<*>): CPConstValue<*> {
+    fun unsignedShiftRight(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not integers" }
         check(this.type == other.type) { "tried to eval values with different types" }
 
@@ -151,7 +163,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun shiftLeft(other: CPConstValue<*>): CPConstValue<*> {
+    fun shiftLeft(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not integers" }
         check(this.type == other.type) { "tried to eval values with different types" }
 
@@ -162,7 +174,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun bitwiseAnd(other: CPConstValue<*>): CPConstValue<*> {
+    fun bitwiseAnd(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not integers" }
         check(this.type == other.type) { "tried to eval values with different types" }
 
@@ -173,7 +185,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun bitwiseOr(other: CPConstValue<*>): CPConstValue<*> {
+    fun bitwiseOr(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not integers" }
         check(this.type == other.type) { "tried to eval values with different types" }
 
@@ -184,7 +196,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun bitwiseXor(other: CPConstValue<*>): CPConstValue<*> {
+    fun bitwiseXor(other: CPConstValue): CPConstValue {
         check(this.value is Number && other.value is Number) { "tried to eval values that are not integers" }
         check(this.type == other.type) { "tried to eval values with different types" }
 
@@ -195,7 +207,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun longCompare(other: CPConstValue<*>): CPConstValue<*> {
+    fun longCompare(other: CPConstValue): CPConstValue {
         check(this.value is Long && other.value is Long) { "tried to eval values that are not longs" }
         check(this.type == other.type) { "tried to eval values with different types" }
 
@@ -205,7 +217,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun floatingCompareGreater(other: CPConstValue<*>): CPConstValue<*> {
+    fun floatingCompareGreater(other: CPConstValue): CPConstValue {
         check(
             (this.value is Float && other.value is Float) ||
                     this.value is Double && other.value is Double
@@ -222,7 +234,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
                 } else {
                     CPConstValue(
                         Type.INT_TYPE,
-                        (this.value as Float).compareTo(other.value).coerceIn(-1, 1)
+                        this.value.compareTo(other.value).coerceIn(-1, 1)
                     )
                 }
             }
@@ -235,7 +247,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
                 } else {
                     CPConstValue(
                         Type.INT_TYPE,
-                        (this.value as Double).compareTo(other.value).coerceIn(-1, 1)
+                        this.value.compareTo(other.value).coerceIn(-1, 1)
                     )
                 }
             }
@@ -243,7 +255,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
         }
     }
 
-    fun floatingCompareLesser(other: CPConstValue<*>): CPConstValue<*> {
+    fun floatingCompareLesser(other: CPConstValue): CPConstValue {
         check(
             (this.value is Float && other.value is Float) ||
                     this.value is Double && other.value is Double
@@ -260,7 +272,7 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
                 } else {
                     CPConstValue(
                         Type.INT_TYPE,
-                        (this.value as Float).compareTo(other.value).coerceIn(-1, 1)
+                        this.value.compareTo(other.value).coerceIn(-1, 1)
                     )
                 }
             }
@@ -273,11 +285,23 @@ class CPConstValue<T>(type: Type?, val value: T?) : CPLatticeValue(type) {
                 } else {
                     CPConstValue(
                         Type.INT_TYPE,
-                        (this.value as Double).compareTo(other.value).coerceIn(-1, 1)
+                        this.value.compareTo(other.value).coerceIn(-1, 1)
                     )
                 }
             }
             else -> throw AssertionError("unexpected type")
+        }
+    }
+
+    /**
+     * Get the length of this const array
+     */
+    fun arrayLength(): CPLatticeValue {
+        check(this.value is String || this.type!!.isArrayType()) { "tried to get array length on non-array value" }
+
+        return when (this.type) {
+            STRING_TYPE -> CPConstValue(Type.INT_TYPE, (this.value as String).length)
+            else -> CPConstValue(Type.INT_TYPE, (this.value as Array<*>).size)
         }
     }
 }
@@ -291,9 +315,6 @@ fun mergeTypes(type1: Type?, type2: Type?): Type? {
     if (type2 == null)
         return type1
 
-    if (type1 == Type.VOID_TYPE && type2 != Type.VOID_TYPE)
-        return type2
-
     return type1
 }
 
@@ -301,7 +322,7 @@ fun <T> coerceType(value: CPLatticeValue, type: Type, converter: (Any?) -> T): C
     return if (value is CPNoConst) {
         value
     } else {
-        if (value is CPConstValue<*>) {
+        if (value is CPConstValue) {
             CPConstValue(type, converter(value.value))
         } else {
             CPUndefined(type)

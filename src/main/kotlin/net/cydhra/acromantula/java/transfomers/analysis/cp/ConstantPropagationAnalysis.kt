@@ -31,20 +31,25 @@ class ConstantPropagationAnalysis {
             // operations
             val applicableValue = getStackLayout(currentInstruction, currentFrame)
 
+            if (currentInstruction is LabelNode || currentInstruction is LineNumberNode || currentInstruction is FrameNode) {
+                continue
+            }
+
+            logger().debug("==================================")
+            logger().debug("Instruction Frame of \"${OpCode.get(currentInstruction.opcode).name}\"")
+            logger().debug("Frame Locals:")
+
+            (0 until currentFrame.locals).forEach { i ->
+                logger().debug("[LOCAL] $i: ${currentFrame.getLocal(i)}")
+            }
+
+            logger().debug("Frame Stack:")
+            (0 until currentFrame.stackSize).forEach { i ->
+                logger().debug("[STACK] $i: ${currentFrame.getStack(i)}")
+            }
+
             if (applicableValue != null) {
                 val (pops, values) = applicableValue
-
-                logger().debug("Instruction Frame of \"${OpCode.get(currentInstruction.opcode).name}\"")
-                logger().debug("Frame Locals:")
-
-                (0 until currentFrame.locals).forEach { i ->
-                    logger().debug("[LOCAL] $i: ${currentFrame.getLocal(i)}")
-                }
-
-                logger().debug("Frame Stack:")
-                (0 until currentFrame.stackSize).forEach { i ->
-                    logger().debug("[STACK] $i: ${currentFrame.getStack(i)}")
-                }
 
                 if (values.all { it is CPConstValue }) {
                     logger().debug("all operands are constant:")
@@ -79,9 +84,11 @@ class ConstantPropagationAnalysis {
                     // remove the instruction that got replaced
                     instructionIterator.next()
                     instructionIterator.remove()
+                } else {
+                    logger().debug("not all operands are constant")
                 }
-
-                logger().debug("==================================")
+            } else {
+                logger().debug("non-applicable instruction")
             }
         }
     }
@@ -115,6 +122,39 @@ class ConstantPropagationAnalysis {
             }
             Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD -> {
                 return Pair(emptyList(), listOf(currentFrameState.getLocal((instruction as VarInsnNode).`var`)))
+            }
+            Opcodes.ALOAD -> {
+                val value = currentFrameState.getLocal((instruction as VarInsnNode).`var`)
+
+                // we cannot push array types onto stacks. We only need them for array accesses
+                return if (value.type!!.isArrayType()) {
+                    null
+                } else {
+                    Pair(emptyList(), listOf(value))
+                }
+            }
+            Opcodes.INVOKESTATIC, Opcodes.INVOKESPECIAL, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKEINTERFACE -> {
+                // special handling for string methods
+                if ((instruction as MethodInsnNode).owner == STRING_TYPE.internalName) {
+                    val parameters = Type.getArgumentTypes(instruction.desc)
+                    val returnType = Type.getReturnType(instruction.desc)
+
+                    // if the return value of the function is potentially constant, return a stack layout
+                    if (returnType.isArrayType() || returnType == STRING_TYPE
+                        || returnType == Type.BOOLEAN_TYPE || returnType == Type.BYTE_TYPE
+                        || returnType == Type.SHORT_TYPE || returnType == Type.CHAR_TYPE
+                        || returnType == Type.INT_TYPE || returnType == Type.LONG_TYPE
+                        || returnType == Type.FLOAT_TYPE || returnType == Type.DOUBLE_TYPE
+                    ) {
+                        val pops = parameters.map { PopVariant.getBySize(it.size) }.toMutableList()
+                        if (instruction.opcode != Opcodes.INVOKESTATIC) {
+                            // add another pop for the object instance
+                            pops.add(0, PopVariant.POP)
+                        }
+
+                        return Pair(pops, (0..parameters.size).map { getStackValue(currentFrameState, it) }.toList())
+                    }
+                }
             }
         }
 
@@ -157,8 +197,8 @@ class ConstantPropagationAnalysis {
                     else -> LdcInsnNode(value.value)
                 }
             }
-            Type.LONG_TYPE, Type.DOUBLE_TYPE, Type.FLOAT_TYPE -> LdcInsnNode(value.value)
-            else -> throw IllegalStateException("non-numeric constants not yet supported")
+            Type.LONG_TYPE, Type.DOUBLE_TYPE, Type.FLOAT_TYPE, STRING_TYPE -> LdcInsnNode(value.value)
+            else -> throw IllegalStateException("non-primitive constants cannot be pushed")
         }
     }
 

@@ -39,7 +39,7 @@ object ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
                     is Float -> CPConstValue(Type.FLOAT_TYPE, insn.cst)
                     is Long -> CPConstValue(Type.LONG_TYPE, insn.cst)
                     is Double -> CPConstValue(Type.DOUBLE_TYPE, insn.cst)
-                    is String -> CPNoConst() // todo string/array handling
+                    is String -> CPConstValue(STRING_TYPE, insn.cst)
                     is Type -> CPNoConst()
                     else -> throw AssertionError("constant with undefined type")
                 }
@@ -79,8 +79,11 @@ object ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
             Opcodes.LOOKUPSWITCH, Opcodes.IRETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN, Opcodes.ARETURN,
             Opcodes.PUTSTATIC, Opcodes.GETFIELD, Opcodes.ATHROW, Opcodes.CHECKCAST, Opcodes.INSTANCEOF,
             Opcodes.MONITORENTER, Opcodes.MONITOREXIT, Opcodes.IFNULL, Opcodes.IFNONNULL -> CPNoConst();
-            Opcodes.NEWARRAY, Opcodes.ANEWARRAY, Opcodes.ARRAYLENGTH -> CPNoConst()
-            // TODO array handling, object handling, null handling
+            // TODO more array handling, object handling, null handling
+
+            Opcodes.NEWARRAY -> eval { newArray((insn as IntInsnNode).operand, value) }
+            Opcodes.ANEWARRAY -> CPNoConst()
+            Opcodes.ARRAYLENGTH -> eval { value.length() }
 
             else -> throw AssertionError("method called with undocumented instruction")
         }
@@ -135,8 +138,38 @@ object ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
             is MethodInsnNode -> {
                 if (returnType(insn.desc) == "V")
                     null
-                else
-                    CPNoConst()
+                else {
+                    // special handling for string methods
+                    if (insn.owner == STRING_TYPE.internalName) {
+                        val parameters = Type.getArgumentTypes(insn.desc)
+                        val returnType = Type.getReturnType(insn.desc)
+
+                        if (returnType == Type.VOID_TYPE) {
+                            null
+                        } else if (returnType.isArrayType() || returnType == STRING_TYPE
+                            || returnType == Type.BOOLEAN_TYPE || returnType == Type.BYTE_TYPE
+                            || returnType == Type.SHORT_TYPE || returnType == Type.CHAR_TYPE
+                            || returnType == Type.INT_TYPE || returnType == Type.LONG_TYPE
+                            || returnType == Type.FLOAT_TYPE || returnType == Type.DOUBLE_TYPE
+                        ) {
+                            evalString(
+                                insn.desc,
+                                insn.name,
+                                parameters.map { it.className }.toTypedArray(),
+                                insn.opcode == Opcodes.INVOKESTATIC,
+                                *values?.toTypedArray() ?: emptyArray()
+                            )
+                        } else {
+                            CPNoConst()
+                        }
+                    } else {
+                        CPNoConst()
+                    }
+                }
+            }
+            is MultiANewArrayInsnNode -> {
+                // TODO multi dimensional array handling
+                CPNoConst()
             }
             else -> throw AssertionError("method called with undocumented instruction")
         }
@@ -157,6 +190,9 @@ object ConstantValueInterpreter : Interpreter<CPLatticeValue>(Opcodes.ASM9) {
         return CPNoConst()
     }
 
+    /**
+     * Calculate the return-type of a method descriptor
+     */
     private fun returnType(methodDescriptor: String): String {
         return methodDescriptor.substring(methodDescriptor.lastIndexOf(')') + 1)
     }

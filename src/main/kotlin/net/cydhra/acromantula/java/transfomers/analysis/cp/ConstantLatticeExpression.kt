@@ -1,5 +1,14 @@
 package net.cydhra.acromantula.java.transfomers.analysis.cp
 
+import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
+import java.lang.reflect.Method
+
+/**
+ * Cache for string method reflections
+ */
+private val reflectionCache = mutableMapOf<String, Method>()
+
 /**
  * Evaluate an expression given in form of a lambda function that operates on [lattice values][CPLatticeValue]. The
  * eval function does nothing but return the [CPLatticeValue] that the [expr] lambda produces. The expression is
@@ -7,15 +16,95 @@ package net.cydhra.acromantula.java.transfomers.analysis.cp
  */
 fun eval(expr: ConstantLatticeAlgebra.() -> CPLatticeValue) = ConstantLatticeAlgebra.let(expr)
 
+/**
+ * Check whether any of the given values is [CPUndefined]
+ */
+private fun checkBottom(vararg values: CPLatticeValue): Boolean {
+    return values.any { it is CPUndefined }
+}
+
+/**
+ * Check whether any of the given values is [CPNoConst]
+ */
+private fun checkTop(vararg values: CPLatticeValue): Boolean {
+    return values.any { it is CPNoConst }
+}
+
+fun evalString(
+    methodDesc: String,
+    method: String,
+    parameterTypes: Array<String>,
+    isStatic: Boolean,
+    vararg arguments: CPLatticeValue
+): CPLatticeValue {
+    // check if inputs are const
+    if (checkBottom(*arguments))
+        return CPUndefined(STRING_TYPE)
+
+    if (checkTop(*arguments))
+        return CPNoConst()
+
+    val parameterClasses = parameterTypes
+        .map {
+            when (it) {
+                "byte" -> Byte::class.javaPrimitiveType
+                "char" -> Char::class.javaPrimitiveType
+                "short" -> Short::class.javaPrimitiveType
+                "int" -> Int::class.javaPrimitiveType
+                "long" -> Long::class.javaPrimitiveType
+                "float" -> Float::class.javaPrimitiveType
+                "double" -> Double::class.javaPrimitiveType
+                else -> Class.forName(it)
+            }
+        }
+        .toTypedArray()
+
+    // find method reflection
+    val reflection = reflectionCache.getOrPut(methodDesc) {
+        String::class.java.getMethod(method, *parameterClasses)
+    }
+
+    // extract actual values
+    val argumentValues = arguments
+        .map { (it as CPConstValue).value }
+        .toTypedArray()
+
+    // cast primitive value integers to corresponding types
+    parameterClasses
+        .withIndex()
+        .forEach { (i, cls) ->
+            when (cls) {
+                Boolean::class.javaPrimitiveType -> {
+                    argumentValues[i + 1] = argumentValues[i + 1] != 0
+                }
+                Byte::class.javaPrimitiveType -> {
+                    argumentValues[i + 1] = (argumentValues[i + 1]!! as Int).toByte()
+                }
+                Char::class.javaPrimitiveType -> {
+                    argumentValues[i + 1] = Char(argumentValues[i + 1]!! as Int)
+                }
+                Short::class.javaPrimitiveType -> {
+                    argumentValues[i + 1] = (argumentValues[i + 1]!! as Int).toShort()
+                }
+            }
+        }
+
+    // calculate string operation
+    val newConst = if (isStatic)
+        reflection.invoke(null, argumentValues)
+    else
+        reflection.invoke(
+            argumentValues.first(),
+            *argumentValues
+                .slice(1 until argumentValues.size)
+                .toTypedArray()
+        )
+
+    // return result as const value
+    return CPConstValue(Type.getType(newConst.javaClass), newConst)
+}
+
 object ConstantLatticeAlgebra {
-
-    private fun checkBottom(vararg values: CPLatticeValue): Boolean {
-        return values.any { it is CPUndefined }
-    }
-
-    private fun checkTop(vararg values: CPLatticeValue): Boolean {
-        return values.any { it is CPNoConst }
-    }
 
     /**
      * Add two values together
@@ -199,6 +288,9 @@ object ConstantLatticeAlgebra {
         return (this as CPConstValue).floatingCompareLesser(other as CPConstValue)
     }
 
+    /**
+     * Negate the given value
+     */
     fun neg(value: CPLatticeValue): CPLatticeValue {
         if (checkBottom(value))
             return CPUndefined(value.type)
@@ -207,5 +299,55 @@ object ConstantLatticeAlgebra {
             return CPNoConst()
 
         return (value as CPConstValue).negate()
+    }
+
+    /**
+     * Get the array length of the value
+     */
+    fun CPLatticeValue.length(): CPLatticeValue {
+        if (checkBottom(this))
+            return CPUndefined(this.type)
+
+        if (checkTop(this))
+            return CPNoConst()
+
+        return (this as CPConstValue).arrayLength()
+    }
+
+    /**
+     * Create a new array-type value
+     */
+    fun newArray(kind: Int, size: CPLatticeValue): CPLatticeValue {
+        val type = when (kind) {
+            Opcodes.T_BOOLEAN -> Type.getType(Array<Boolean>::class.java)
+            Opcodes.T_CHAR -> Type.getType(Array<Char>::class.java)
+            Opcodes.T_FLOAT -> Type.getType(Array<Float>::class.java)
+            Opcodes.T_DOUBLE -> Type.getType(Array<Double>::class.java)
+            Opcodes.T_BYTE -> Type.getType(Array<Byte>::class.java)
+            Opcodes.T_SHORT -> Type.getType(Array<Short>::class.java)
+            Opcodes.T_INT -> Type.getType(Array<Int>::class.java)
+            Opcodes.T_LONG -> Type.getType(Array<Long>::class.java)
+            else -> throw AssertionError("illegal kind of array")
+        }
+
+        if (checkBottom(size))
+            return CPUndefined(type)
+
+        if (checkTop(size))
+            return CPNoConst()
+
+        val arraySize = (size as CPConstValue).value as Int
+
+        return CPConstValue(type, when (kind) {
+            Opcodes.T_BOOLEAN -> Array(arraySize) { false }
+            Opcodes.T_CHAR -> Array(arraySize) { Char(0) }
+            Opcodes.T_FLOAT -> Array(arraySize) { 0f }
+            Opcodes.T_DOUBLE -> Array(arraySize) { 0.0 }
+            Opcodes.T_BYTE -> Array(arraySize) { 0.toByte() }
+            Opcodes.T_SHORT -> Array(arraySize) { 0.toShort() }
+            Opcodes.T_INT -> Array(arraySize) { 0 }
+            Opcodes.T_LONG -> Array(arraySize) { 0L }
+            else -> throw AssertionError()
+        })
     }
 }
