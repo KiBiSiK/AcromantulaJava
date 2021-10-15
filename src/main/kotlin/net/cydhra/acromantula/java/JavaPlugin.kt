@@ -5,7 +5,7 @@ import net.cydhra.acromantula.features.transformer.TransformerFeature
 import net.cydhra.acromantula.features.view.GenerateViewFeature
 import net.cydhra.acromantula.java.mapping.JavaClassMapper
 import net.cydhra.acromantula.java.mapping.types.*
-import net.cydhra.acromantula.java.transfomers.analysis.cp.ConstantPropagation
+import net.cydhra.acromantula.java.transfomers.analysis.cp.ConstantPropagationTransformer
 import net.cydhra.acromantula.java.view.disassembly.DisassemblyViewGenerator
 import net.cydhra.acromantula.plugins.AcromantulaPlugin
 import org.apache.logging.log4j.LogManager
@@ -33,7 +33,7 @@ class JavaPlugin : AcromantulaPlugin {
 
         GenerateViewFeature.registerViewGenerator(DisassemblyViewGenerator)
 
-        TransformerFeature.registerTransformer(ConstantPropagation())
+        TransformerFeature.registerTransformer(ConstantPropagationTransformer())
 
         logger.info("registered java plugin")
     }

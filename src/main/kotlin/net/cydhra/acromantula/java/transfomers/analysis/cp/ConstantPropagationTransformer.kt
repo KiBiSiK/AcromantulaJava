@@ -8,7 +8,7 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
 import org.apache.logging.log4j.LogManager.getLogger as logger
 
-class ConstantPropagation : FileTransformer {
+class ConstantPropagationTransformer : FileTransformer {
     override val name: String = "java.constant-propagation"
 
     override suspend fun transform(fileEntity: FileEntity) {
