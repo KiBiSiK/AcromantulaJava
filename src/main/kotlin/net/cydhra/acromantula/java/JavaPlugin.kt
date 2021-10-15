@@ -6,6 +6,7 @@ import net.cydhra.acromantula.features.view.GenerateViewFeature
 import net.cydhra.acromantula.java.mapping.JavaClassMapper
 import net.cydhra.acromantula.java.mapping.types.*
 import net.cydhra.acromantula.java.transfomers.analysis.cp.ConstantPropagationTransformer
+import net.cydhra.acromantula.java.transfomers.analysis.elimination.DeadVariableEliminationTransformer
 import net.cydhra.acromantula.java.view.disassembly.DisassemblyViewGenerator
 import net.cydhra.acromantula.plugins.AcromantulaPlugin
 import org.apache.logging.log4j.LogManager
@@ -34,6 +35,7 @@ class JavaPlugin : AcromantulaPlugin {
         GenerateViewFeature.registerViewGenerator(DisassemblyViewGenerator)
 
         TransformerFeature.registerTransformer(ConstantPropagationTransformer())
+        TransformerFeature.registerTransformer(DeadVariableEliminationTransformer())
 
         logger.info("registered java plugin")
     }
