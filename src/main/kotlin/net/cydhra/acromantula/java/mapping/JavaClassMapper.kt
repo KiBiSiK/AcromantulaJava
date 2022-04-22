@@ -6,6 +6,7 @@ import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
@@ -66,6 +67,11 @@ class JavaClassMapper : MappingFactory {
                 )
 
                 with(visitor) {
+                    visitReturnType(Type.getReturnType(methodNode.desc))
+                    Type.getArgumentTypes(methodNode.desc).forEach { argType ->
+                        visitParameterType(argType)
+                    }
+
                     methodNode.instructions.forEach { insn ->
                         when (insn) {
                             is TypeInsnNode -> visitTypeInsn(insn.opcode, insn.desc)

@@ -1,9 +1,9 @@
 package net.cydhra.acromantula.java.mapping.visitors
 
 import net.cydhra.acromantula.features.mapper.MapperFeature
-import net.cydhra.acromantula.java.mapping.types.ClassNameSymbolType
-import net.cydhra.acromantula.java.mapping.types.FieldNameSymbolType
-import net.cydhra.acromantula.java.mapping.types.MethodNameSymbolType
+import net.cydhra.acromantula.java.mapping.types.ClassNameSymbol
+import net.cydhra.acromantula.java.mapping.types.FieldNameSymbol
+import net.cydhra.acromantula.java.mapping.types.MethodNameSymbol
 import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
@@ -28,7 +28,7 @@ class MapperClassVisitor(private val file: FileEntity) {
     ) {
         this.identity = constructClassIdentity(name)
         MapperFeature.insertSymbolIntoDatabase(
-            ClassNameSymbolType,
+            ClassNameSymbol,
             this.file,
             this.identity,
             name,
@@ -44,7 +44,7 @@ class MapperClassVisitor(private val file: FileEntity) {
         value: Any?
     ): MapperMethodVisitor? {
         MapperFeature.insertSymbolIntoDatabase(
-            FieldNameSymbolType,
+            FieldNameSymbol,
             this.file,
             constructFieldIdentity(this.identity, name, descriptor),
             name,
@@ -62,7 +62,7 @@ class MapperClassVisitor(private val file: FileEntity) {
         exceptions: Array<out String>?
     ): MapperMethodVisitor {
         MapperFeature.insertSymbolIntoDatabase(
-            MethodNameSymbolType,
+            MethodNameSymbol,
             this.file,
             constructMethodIdentity(this.identity, name, descriptor),
             name,

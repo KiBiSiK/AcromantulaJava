@@ -24,13 +24,15 @@ class JavaPlugin : AcromantulaPlugin {
     override fun initialize() {
         MapperFeature.registerMappingFactory(JavaClassMapper())
 
-        MapperFeature.registerSymbolType(ClassNameSymbolType)
-        MapperFeature.registerSymbolType(MethodNameSymbolType)
-        MapperFeature.registerSymbolType(FieldNameSymbolType)
+        MapperFeature.registerSymbolType(ClassNameSymbol)
+        MapperFeature.registerSymbolType(MethodNameSymbol)
+        MapperFeature.registerSymbolType(FieldNameSymbol)
 
-        MapperFeature.registerReferenceType(TypeInstructionReferenceType, ClassNameSymbolType)
-        MapperFeature.registerReferenceType(FieldInstructionReferenceType, FieldNameSymbolType)
-        MapperFeature.registerReferenceType(MethodInstructionReferenceType, MethodNameSymbolType)
+        MapperFeature.registerReferenceType(TypeInstructionReference, ClassNameSymbol)
+        MapperFeature.registerReferenceType(FieldInstructionReference, FieldNameSymbol)
+        MapperFeature.registerReferenceType(MethodInstructionReference, MethodNameSymbol)
+        MapperFeature.registerReferenceType(ReturnTypeReference, ClassNameSymbol)
+        MapperFeature.registerReferenceType(ParameterTypeReference, ClassNameSymbol)
 
         GenerateViewFeature.registerViewGenerator(DisassemblyViewGenerator)
 
