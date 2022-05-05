@@ -1,8 +1,8 @@
 package net.cydhra.acromantula.java.mapping.remapping
 
-import net.cydhra.acromantula.features.mapper.MapperFeature
 import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.database.DatabaseMappingsManager
+import net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference
 import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,27 +18,46 @@ import org.objectweb.asm.tree.ClassNode
  * accordingly.
  * The actual remapping work in the class files is done by a [org.objectweb.asm.commons.Remapper] implementation.
  */
-object RemappingHelper {
+object AsmRemappingHelper {
 
     /**
-     * Search for all references to a [ContentMappingSymbol] and update them both in database as well as in bytecode.
-     *
-     * @param symbol the symbol being renamed
-     * @param newName new name for the symbol
-     * @param remapper the bytecode remapper to use for actual rewriting classes.
+     * A list of class files that are scheduled for remapping. They are being scheduled by the
+     * [net.cydhra.acromantula.features.mapper.AcromantulaReferenceType] implementations. Once [remapScheduledFiles]
+     * is called by the respective symbol type, all those class files are loaded, remapped and saved again. The list
+     * is then cleared.
      */
-    fun remapSymbolAndReferences(symbol: ContentMappingSymbol, newName: String, remapper: Remapper) {
-        val allReferences = MapperFeature.getReferences(symbol)
-        for (reference in allReferences) {
-            updateBytecode(reference.file, remapper)
-        }
+    private val scheduledForRemapping = mutableSetOf<FileEntity>()
 
-        if (symbol.file != null) {
-            updateBytecode(symbol.file!!, remapper)
+    /**
+     * Schedule a reference for remapping. This method will store the reference's origin file in a list, and once
+     * [remapScheduledFiles] is executed, all stored files are laoded, remapped and saved again.
+     *
+     * @param reference the reference that is being remapped
+     */
+    fun scheduleFileForRemapping(reference: ContentMappingReference) {
+        scheduledForRemapping += reference.file
+    }
+
+    /**
+     * Remap all previously stored files using the new symbol name
+     *
+     * @param symbol the symbol that is being renamed
+     * @param newName the new name for the symbol
+     * @param remapper the ASM remapper implementation
+     */
+    fun remapScheduledFiles(symbol: ContentMappingSymbol, newName: String, remapper: Remapper) {
+        require(symbol.file != null) { "cannot remap external symbols" }
+
+        updateBytecode(symbol.file!!, remapper)
+
+        for (file in scheduledForRemapping) {
+            updateBytecode(file, remapper)
             transaction {
                 DatabaseMappingsManager.updateSymbolName(symbol, newName)
             }
         }
+
+        scheduledForRemapping.clear()
     }
 
     /**
