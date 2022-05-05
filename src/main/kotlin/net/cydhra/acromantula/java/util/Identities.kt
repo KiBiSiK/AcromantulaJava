@@ -44,6 +44,13 @@ fun constructClassIdentity(fullName: String): String {
 }
 
 /**
+ * Reconstruct the class name from a class identity
+ */
+fun reconstructClassName(classIdentity: String): String {
+    return classIdentity
+}
+
+/**
  * Construct a string that uniquely identifies a java field member
  *
  * @param ownerIdentity the unique class identity of the field's class
@@ -55,6 +62,22 @@ fun constructFieldIdentity(ownerIdentity: String, fieldName: String, fieldDescri
 }
 
 /**
+ * Reconstruct the owner identity, the field name and the field descriptor from a field identity
+ *
+ * @return a triple of the field's owning class identity, field name, and field descriptor
+ */
+fun reconstructFieldDefinition(identity: String): Array<String> {
+    val ownerEndIndex = identity.indexOf("::")
+    val fieldNameEndIndex = identity.indexOf(":", ownerEndIndex + 2)
+
+    return arrayOf(
+        identity.substring(0, ownerEndIndex),
+        identity.substring(ownerEndIndex + 2, fieldNameEndIndex),
+        identity.substring(fieldNameEndIndex + 1, identity.length)
+    )
+}
+
+/**
  * Construct a string that uniquely identifies a java method member
  *
  * @param ownerIdentity the unique class identity of the method's class
@@ -63,4 +86,20 @@ fun constructFieldIdentity(ownerIdentity: String, fieldName: String, fieldDescri
  */
 fun constructMethodIdentity(ownerIdentity: String, methodName: String, methodDescriptor: String): String {
     return "$ownerIdentity::$methodName$methodDescriptor"
+}
+
+/**
+ * Reconstruct the owner identity, the method name and the method descriptor from a method identity
+ *
+ * @return a triple of the method's owning class identity, method name, and method descriptor
+ */
+fun reconstructMethodDefinition(identity: String): Array<String> {
+    val ownerEndIndex = identity.indexOf("::")
+    val fieldNameEndIndex = identity.indexOf("(", ownerEndIndex + 2)
+
+    return arrayOf(
+        identity.substring(0, ownerEndIndex),
+        identity.substring(ownerEndIndex + 2, fieldNameEndIndex),
+        identity.substring(fieldNameEndIndex + 1, identity.length)
+    )
 }
