@@ -100,6 +100,6 @@ fun reconstructMethodDefinition(identity: String): Array<String> {
     return arrayOf(
         identity.substring(0, ownerEndIndex),
         identity.substring(ownerEndIndex + 2, fieldNameEndIndex),
-        identity.substring(fieldNameEndIndex + 1, identity.length)
+        identity.substring(fieldNameEndIndex, identity.length)
     )
 }
