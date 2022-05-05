@@ -5,6 +5,7 @@ import net.cydhra.acromantula.java.mapping.types.*
 import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
+import net.cydhra.acromantula.java.util.isPrimitive
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ParameterNode
@@ -55,7 +56,17 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
     }
 
     suspend fun visitReturnType(returnType: Type) {
+        if (isPrimitive(returnType))
+            return
+
         val classIdentity = constructClassIdentity(returnType.internalName)
+        MapperFeature.insertSymbolIntoDatabase(
+            ClassNameSymbol,
+            null,
+            classIdentity,
+            returnType.internalName,
+            null
+        )
         MapperFeature.insertReferenceIntoDatabase(
             ReturnTypeReference,
             file,
@@ -66,7 +77,17 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
     }
 
     suspend fun visitParameterType(parameterType: Type) {
+        if (isPrimitive(parameterType))
+            return
+
         val classIdentity = constructClassIdentity(parameterType.internalName)
+        MapperFeature.insertSymbolIntoDatabase(
+            ClassNameSymbol,
+            null,
+            classIdentity,
+            parameterType.internalName,
+            null
+        )
         MapperFeature.insertReferenceIntoDatabase(
             ParameterTypeReference,
             file,
