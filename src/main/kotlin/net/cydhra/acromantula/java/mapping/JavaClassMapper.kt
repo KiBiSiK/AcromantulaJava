@@ -7,10 +7,7 @@ import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
-import org.objectweb.asm.tree.ClassNode
-import org.objectweb.asm.tree.FieldInsnNode
-import org.objectweb.asm.tree.MethodInsnNode
-import org.objectweb.asm.tree.TypeInsnNode
+import org.objectweb.asm.tree.*
 import java.io.PushbackInputStream
 
 /**
@@ -83,6 +80,14 @@ class JavaClassMapper : MappingFactory {
                                 insn.desc,
                                 insn.itf
                             )
+                            is InvokeDynamicInsnNode -> visitInvokeDynamicInsn(
+                                insn.opcode,
+                                insn.name,
+                                insn.desc,
+                                insn.bsm,
+                                insn.bsmArgs
+                            )
+
                         }
                     }
                 }

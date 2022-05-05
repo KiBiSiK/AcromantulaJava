@@ -7,6 +7,8 @@ import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
 import net.cydhra.acromantula.java.util.isPrimitive
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
+import org.objectweb.asm.Handle
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ParameterNode
 
@@ -53,6 +55,55 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
             this.owner,
             null
         )
+    }
+
+    suspend fun visitInvokeDynamicInsn(opcode: Int, name: String, desc: String, bsm: Handle, bsmArgs: Array<Any>) {
+        // todo: are the method name and descriptor from the dynamically computed callsite
+        //  relevant for method dispatch? Or in other words: can we rename the function of the
+        //  functional interface used in the invokedynamic call without renaming the parameters
+        //  in the callsite and still get the dynamic call to work? (if so, we not necessarily need to map it)
+//        val bootstrapMethod = constructMethodIdentity(constructClassIdentity(bsm.owner), bsm.name, bsm.desc)
+//        MapperFeature.insertSymbolIntoDatabase(MethodNameSymbol, null, bootstrapMethod, bsm.name, null)
+
+        bsmArgs.filterIsInstance<Handle>().forEach { handle ->
+            when (handle.tag) {
+                Opcodes.H_GETFIELD,
+                Opcodes.H_GETSTATIC,
+                Opcodes.H_PUTFIELD,
+                Opcodes.H_PUTSTATIC -> {
+                    val fieldHandle =
+                        constructFieldIdentity(constructClassIdentity(handle.owner), handle.name, handle.desc)
+
+                    MapperFeature.insertSymbolIntoDatabase(FieldNameSymbol, null, fieldHandle, bsm.name, null)
+                    MapperFeature.insertReferenceIntoDatabase(
+                        InvokeDynamicFieldReference,
+                        file,
+                        fieldHandle,
+                        this.owner,
+                        null
+                    )
+                }
+                Opcodes.H_INVOKEVIRTUAL,
+                Opcodes.H_INVOKESTATIC,
+                Opcodes.H_INVOKESPECIAL,
+                Opcodes.H_NEWINVOKESPECIAL,
+                Opcodes.H_INVOKEINTERFACE -> {
+                    val methodHandle =
+                        constructMethodIdentity(constructClassIdentity(handle.owner), handle.name, handle.desc)
+
+                    MapperFeature.insertSymbolIntoDatabase(MethodNameSymbol, null, methodHandle, bsm.name, null)
+                    MapperFeature.insertReferenceIntoDatabase(
+                        InvokeDynamicMethodReference,
+                        file,
+                        methodHandle,
+                        this.owner,
+                        null
+                    )
+                }
+            }
+
+
+        }
     }
 
     suspend fun visitReturnType(returnType: Type) {
