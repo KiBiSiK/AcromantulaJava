@@ -1,11 +1,9 @@
 package net.cydhra.acromantula.java.mapping.remapping
 
 import net.cydhra.acromantula.workspace.WorkspaceService
-import net.cydhra.acromantula.workspace.database.DatabaseMappingsManager
 import net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference
 import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.commons.ClassRemapper
@@ -42,19 +40,15 @@ object AsmRemappingHelper {
      * Remap all previously stored files using the new symbol name
      *
      * @param symbol the symbol that is being renamed
-     * @param newName the new name for the symbol
      * @param remapper the ASM remapper implementation
      */
-    fun remapScheduledFiles(symbol: ContentMappingSymbol, newName: String, remapper: Remapper) {
+    fun remapScheduledFiles(symbol: ContentMappingSymbol, remapper: Remapper) {
         require(symbol.file != null) { "cannot remap external symbols" }
 
         updateBytecode(symbol.file!!, remapper)
 
         for (file in scheduledForRemapping) {
             updateBytecode(file, remapper)
-            transaction {
-                DatabaseMappingsManager.updateSymbolName(symbol, newName)
-            }
         }
 
         scheduledForRemapping.clear()

@@ -23,7 +23,6 @@ object FieldNameSymbol : AcromantulaSymbolType("java.field.name", true) {
 
             AsmRemappingHelper.remapScheduledFiles(
                 symbol,
-                newName,
                 FieldNameRemapper(reconstructClassName(classIdentity), fieldName, fieldDescriptor, newName)
             )
 
