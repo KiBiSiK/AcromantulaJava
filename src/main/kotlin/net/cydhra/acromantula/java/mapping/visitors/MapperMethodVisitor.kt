@@ -106,6 +106,29 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
         }
     }
 
+    suspend fun visitLdcInsn(opcode: Int, constant: Any) {
+        if (constant is Type) {
+            if (isPrimitive(constant))
+                return
+
+            val classIdentity = constructClassIdentity(constant.internalName)
+            MapperFeature.insertSymbolIntoDatabase(
+                ClassNameSymbol,
+                null,
+                classIdentity,
+                constant.internalName,
+                null
+            )
+            MapperFeature.insertReferenceIntoDatabase(
+                ReturnTypeReference,
+                file,
+                classIdentity,
+                this.owner,
+                null
+            )
+        }
+    }
+
     suspend fun visitReturnType(returnType: Type) {
         if (isPrimitive(returnType))
             return

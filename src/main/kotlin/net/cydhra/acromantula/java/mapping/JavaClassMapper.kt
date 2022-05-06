@@ -87,7 +87,7 @@ class JavaClassMapper : MappingFactory {
                                 insn.bsm,
                                 insn.bsmArgs
                             )
-
+                            is LdcInsnNode -> visitLdcInsn(insn.opcode, insn.cst)
                         }
                     }
                 }
