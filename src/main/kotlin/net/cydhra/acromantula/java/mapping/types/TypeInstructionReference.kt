@@ -10,6 +10,6 @@ object TypeInstructionReference : AcromantulaReferenceType("java.class.cst") {
     }
 
     override fun stringRepresentation(ref: ContentMappingReference): String {
-        return ref.file.name + ": " + (ref.owner?.let { "[${it.name}] " } ?: "") + (ref.location ?: "")
+        return "${ref.file.name}: INSTRUCTION referencing ${ref.symbol.name}"
     }
 }

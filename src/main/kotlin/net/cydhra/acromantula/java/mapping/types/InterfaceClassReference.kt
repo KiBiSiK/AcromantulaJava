@@ -10,6 +10,6 @@ object InterfaceClassReference : AcromantulaReferenceType("java.class.itf") {
     }
 
     override fun stringRepresentation(ref: ContentMappingReference): String {
-        return ref.file.name + ": IMPLEMENTS " + (ref.owner?.let { "[${it.name}] " } ?: "") + (ref.location ?: "")
+        return "${ref.file.name}: IMPLEMENTED by ${ref.owner?.name}"
     }
 }

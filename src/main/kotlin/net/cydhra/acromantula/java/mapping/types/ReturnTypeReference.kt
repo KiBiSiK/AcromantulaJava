@@ -11,6 +11,6 @@ object ReturnTypeReference : AcromantulaReferenceType("java.method.return") {
 
     override fun stringRepresentation(ref: ContentMappingReference): String {
         // TODO: update
-        return ref.file.name + ": " + (ref.owner?.let { "[${it.name}] " } ?: "") + (ref.location ?: "")
+        return "${ref.file.name}: METHOD RETURN TYPE for ${ref.owner?.name}"
     }
 }
