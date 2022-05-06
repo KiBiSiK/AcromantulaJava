@@ -17,9 +17,9 @@ import org.objectweb.asm.tree.ParameterNode
  * instructions within the method
  *
  * @param file the database file entity
- * @param owner the method symbol identifier that is used as the owning symbol
+ * @param methodIdentity the method symbol identifier that is used as the owning symbol
  */
-class MapperMethodVisitor(private val file: FileEntity, private val owner: String) {
+class MapperMethodVisitor(private val file: FileEntity, private val methodIdentity: String) {
 
     suspend fun visitParameter(parameterNode: ParameterNode) {
 
@@ -28,14 +28,26 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
     suspend fun visitTypeInsn(opcode: Int, type: String) {
         val typeIdentity = constructClassIdentity(type)
         MapperFeature.insertSymbolIntoDatabase(ClassNameSymbol, null, typeIdentity, type, null)
-        MapperFeature.insertReferenceIntoDatabase(TypeInstructionReference, file, typeIdentity, this.owner, null)
+        MapperFeature.insertReferenceIntoDatabase(
+            TypeInstructionReference,
+            file,
+            typeIdentity,
+            this.methodIdentity,
+            null
+        )
     }
 
     suspend fun visitFieldInsn(opcode: Int, owner: String, name: String, descriptor: String) {
         val fieldIdentity = constructFieldIdentity(constructClassIdentity(owner), name, descriptor)
         MapperFeature.insertSymbolIntoDatabase(FieldNameSymbol, null, fieldIdentity, name, null)
         MapperFeature.insertSymbolIntoDatabase(ClassNameSymbol, null, constructClassIdentity(owner), owner, null)
-        MapperFeature.insertReferenceIntoDatabase(FieldInstructionReference, file, fieldIdentity, this.owner, null)
+        MapperFeature.insertReferenceIntoDatabase(
+            FieldInstructionReference,
+            file,
+            fieldIdentity,
+            this.methodIdentity,
+            null
+        )
     }
 
     suspend fun visitMethodInsn(
@@ -52,7 +64,7 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
             MethodInstructionReference,
             file,
             methodIdentity,
-            this.owner,
+            this.methodIdentity,
             null
         )
     }
@@ -79,7 +91,7 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
                         InvokeDynamicFieldReference,
                         file,
                         fieldHandle,
-                        this.owner,
+                        this.methodIdentity,
                         null
                     )
                 }
@@ -96,7 +108,7 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
                         InvokeDynamicMethodReference,
                         file,
                         methodHandle,
-                        this.owner,
+                        this.methodIdentity,
                         null
                     )
                 }
@@ -123,7 +135,7 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
                 ReturnTypeReference,
                 file,
                 classIdentity,
-                this.owner,
+                this.methodIdentity,
                 null
             )
         }
@@ -145,7 +157,7 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
             ReturnTypeReference,
             file,
             classIdentity,
-            this.owner,
+            this.methodIdentity,
             null
         )
     }
@@ -166,7 +178,7 @@ class MapperMethodVisitor(private val file: FileEntity, private val owner: Strin
             ParameterTypeReference,
             file,
             classIdentity,
-            this.owner,
+            this.methodIdentity,
             null
         )
     }

@@ -99,14 +99,15 @@ class MapperClassVisitor(private val file: FileEntity) {
         signature: String?,
         exceptions: Array<out String>?
     ): MapperMethodVisitor {
+        val methodIdentity = constructMethodIdentity(this.identity, name, descriptor)
         MapperFeature.insertSymbolIntoDatabase(
             MethodNameSymbol,
             this.file,
-            constructMethodIdentity(this.identity, name, descriptor),
+            methodIdentity,
             name,
             null
         )
 
-        return MapperMethodVisitor(file, this.identity)
+        return MapperMethodVisitor(file, methodIdentity)
     }
 }
