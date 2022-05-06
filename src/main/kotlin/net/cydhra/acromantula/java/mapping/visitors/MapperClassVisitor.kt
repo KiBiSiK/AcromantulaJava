@@ -4,6 +4,7 @@ import net.cydhra.acromantula.features.mapper.MapperFeature
 import net.cydhra.acromantula.java.mapping.types.ClassNameSymbol
 import net.cydhra.acromantula.java.mapping.types.FieldNameSymbol
 import net.cydhra.acromantula.java.mapping.types.MethodNameSymbol
+import net.cydhra.acromantula.java.mapping.types.SuperClassReference
 import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
@@ -34,6 +35,43 @@ class MapperClassVisitor(private val file: FileEntity) {
             name,
             null
         )
+
+        if (superName != null) {
+            val superIdentity = constructClassIdentity(superName)
+            MapperFeature.insertSymbolIntoDatabase(
+                ClassNameSymbol,
+                null,
+                superIdentity,
+                superName,
+                null
+            )
+            MapperFeature.insertReferenceIntoDatabase(
+                SuperClassReference,
+                file,
+                superIdentity,
+                this.identity,
+                null
+            )
+        }
+
+        interfaces?.forEach { itf ->
+            val itfIdentity = constructClassIdentity(itf)
+            MapperFeature.insertSymbolIntoDatabase(
+                ClassNameSymbol,
+                null,
+                itfIdentity,
+                itf,
+                null
+            )
+
+            MapperFeature.insertReferenceIntoDatabase(
+                SuperClassReference,
+                file,
+                itfIdentity,
+                this.identity,
+                null
+            )
+        }
     }
 
     suspend fun visitField(
