@@ -4,12 +4,12 @@ import net.cydhra.acromantula.features.mapper.AcromantulaReferenceType
 import net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference
 import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
 
-object TypeConstantReference : AcromantulaReferenceType("java.cst.type") {
+object ClassSuperReference : AcromantulaReferenceType("java.class.super") {
     override fun onUpdateSymbolName(symbol: ContentMappingSymbol, reference: ContentMappingReference, newName: String) {
         TODO("not implemented")
     }
 
     override fun stringRepresentation(ref: ContentMappingReference): String {
-        return ref.file.name + ": LDC " + (ref.owner?.let { "[${it.name}] " } ?: "") + (ref.location ?: "")
+        return "${ref.file.name}: SUPERCLASS of ${ref.owner?.name}"
     }
 }

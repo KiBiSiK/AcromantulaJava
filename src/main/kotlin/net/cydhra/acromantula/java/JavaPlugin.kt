@@ -28,16 +28,16 @@ class JavaPlugin : AcromantulaPlugin {
         MapperFeature.registerSymbolType(MethodNameSymbol)
         MapperFeature.registerSymbolType(FieldNameSymbol)
 
-        MapperFeature.registerReferenceType(TypeInstructionReference, ClassNameSymbol)
+        MapperFeature.registerReferenceType(ClassInstructionReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(FieldInstructionReference, FieldNameSymbol)
         MapperFeature.registerReferenceType(MethodInstructionReference, MethodNameSymbol)
         MapperFeature.registerReferenceType(InvokeDynamicFieldReference, FieldNameSymbol)
         MapperFeature.registerReferenceType(InvokeDynamicMethodReference, MethodNameSymbol)
         MapperFeature.registerReferenceType(ReturnTypeReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(ParameterTypeReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(TypeConstantReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(SuperClassReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(InterfaceClassReference, ClassNameSymbol)
+        MapperFeature.registerReferenceType(ClassConstantReference, ClassNameSymbol)
+        MapperFeature.registerReferenceType(ClassSuperReference, ClassNameSymbol)
+        MapperFeature.registerReferenceType(ClassInterfaceReference, ClassNameSymbol)
 
         GenerateViewFeature.registerViewGenerator(DisassemblyViewGenerator)
 

@@ -29,7 +29,7 @@ class MapperMethodVisitor(private val file: FileEntity, private val methodIdenti
         val typeIdentity = constructClassIdentity(type)
         MapperFeature.insertSymbolIntoDatabase(ClassNameSymbol, null, typeIdentity, type, null)
         MapperFeature.insertReferenceIntoDatabase(
-            TypeInstructionReference,
+            ClassInstructionReference,
             file,
             typeIdentity,
             this.methodIdentity,

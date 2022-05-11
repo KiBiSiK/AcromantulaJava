@@ -2,9 +2,9 @@ package net.cydhra.acromantula.java.mapping.visitors
 
 import net.cydhra.acromantula.features.mapper.MapperFeature
 import net.cydhra.acromantula.java.mapping.types.ClassNameSymbol
+import net.cydhra.acromantula.java.mapping.types.ClassSuperReference
 import net.cydhra.acromantula.java.mapping.types.FieldNameSymbol
 import net.cydhra.acromantula.java.mapping.types.MethodNameSymbol
-import net.cydhra.acromantula.java.mapping.types.SuperClassReference
 import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
@@ -46,7 +46,7 @@ class MapperClassVisitor(private val file: FileEntity) {
                 null
             )
             MapperFeature.insertReferenceIntoDatabase(
-                SuperClassReference,
+                ClassSuperReference,
                 file,
                 superIdentity,
                 this.identity,
@@ -65,7 +65,7 @@ class MapperClassVisitor(private val file: FileEntity) {
             )
 
             MapperFeature.insertReferenceIntoDatabase(
-                SuperClassReference,
+                ClassSuperReference,
                 file,
                 itfIdentity,
                 this.identity,
