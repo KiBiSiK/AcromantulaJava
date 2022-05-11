@@ -10,7 +10,6 @@ import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.objectweb.asm.Handle
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
-import org.objectweb.asm.tree.ParameterNode
 
 /**
  * A method visitor that generates [net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference]s from
@@ -20,10 +19,6 @@ import org.objectweb.asm.tree.ParameterNode
  * @param methodIdentity the method symbol identifier that is used as the owning symbol
  */
 class MapperMethodVisitor(private val file: FileEntity, private val methodIdentity: String) {
-
-    suspend fun visitParameter(parameterNode: ParameterNode) {
-
-    }
 
     suspend fun visitTypeInsn(opcode: Int, type: String) {
         val typeIdentity = constructClassIdentity(type)
