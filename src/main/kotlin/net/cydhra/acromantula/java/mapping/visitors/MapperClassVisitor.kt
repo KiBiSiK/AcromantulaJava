@@ -1,10 +1,8 @@
 package net.cydhra.acromantula.java.mapping.visitors
 
+import jdk.internal.org.objectweb.asm.Type
 import net.cydhra.acromantula.features.mapper.MapperFeature
-import net.cydhra.acromantula.java.mapping.types.ClassNameSymbol
-import net.cydhra.acromantula.java.mapping.types.ClassSuperReference
-import net.cydhra.acromantula.java.mapping.types.FieldNameSymbol
-import net.cydhra.acromantula.java.mapping.types.MethodNameSymbol
+import net.cydhra.acromantula.java.mapping.types.*
 import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.constructMethodIdentity
@@ -71,6 +69,42 @@ class MapperClassVisitor(private val file: FileEntity) {
                 this.identity,
                 null
             )
+        }
+    }
+
+    suspend fun visitAnnotation(desc: String, values: List<Any>) {
+        val annotationType = Type.getType(desc)
+        val classIdentity = constructClassIdentity(annotationType.internalName)
+        MapperFeature.insertSymbolIntoDatabase(ClassNameSymbol, null, classIdentity, annotationType.internalName, null)
+
+        MapperFeature.insertReferenceIntoDatabase(
+            ClassAnnotationTypeReference,
+            file,
+            classIdentity,
+            identity,
+            null
+        )
+
+        for (i in (0..values.size).step(2)) {
+            if (values[1] is Type) {
+                val valueType = Type.getType((values[1] as Type).descriptor)
+                val valueClassIdentity = constructClassIdentity(annotationType.internalName)
+                MapperFeature.insertSymbolIntoDatabase(
+                    ClassNameSymbol,
+                    null,
+                    valueClassIdentity,
+                    valueType.internalName,
+                    null
+                )
+
+                MapperFeature.insertReferenceIntoDatabase(
+                    ClassAnnotationValueReference,
+                    file,
+                    valueClassIdentity,
+                    identity,
+                    null
+                )
+            }
         }
     }
 

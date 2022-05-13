@@ -44,6 +44,11 @@ class JavaClassMapper : MappingFactory {
                 classNode.interfaces?.toTypedArray()
             )
 
+            classNode.visibleAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
+            classNode.invisibleAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
+            classNode.visibleTypeAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
+            classNode.invisibleTypeAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
+
             classNode.fields.forEach { fieldNode ->
                 visitField(
                     fieldNode.access,
