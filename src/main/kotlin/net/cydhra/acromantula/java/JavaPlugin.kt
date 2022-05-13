@@ -35,7 +35,6 @@ class JavaPlugin : AcromantulaPlugin {
         MapperFeature.registerReferenceType(InvokeDynamicMethodReference, MethodNameSymbol)
         MapperFeature.registerReferenceType(ReturnTypeReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(ParameterTypeReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(ClassAnnotationTypeReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(ClassSuperReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(ClassInterfaceReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(ClassAnnotationTypeReference, ClassNameSymbol)
