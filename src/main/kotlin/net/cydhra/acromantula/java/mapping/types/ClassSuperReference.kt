@@ -10,6 +10,6 @@ object ClassSuperReference : AcromantulaReferenceType("java.class.super") {
     }
 
     override fun stringRepresentation(ref: ContentMappingReference): String {
-        return "${ref.file.name}: SUPERCLASS of ${ref.owner?.name}"
+        return "${ref.file.name}: SUPERCLASS of ${ref.symbol.name}"
     }
 }
