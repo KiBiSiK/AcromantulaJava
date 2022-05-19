@@ -11,7 +11,7 @@ import org.objectweb.asm.commons.Remapper
 
 object ClassNameSymbol : AcromantulaSymbolType("java.class.name", true) {
     override fun onUpdateName(symbol: ContentMappingSymbol, newName: String) {
-        val oldPath = symbol.name.substring(0, symbol.name.lastIndexOf("/"))
+        val oldPath = symbol.name.substring(0, symbol.name.lastIndexOf("/") + 1)
         if (!newName.startsWith(oldPath) || newName.removePrefix(oldPath).contains('/')) {
             throw IllegalArgumentException("moving files is not yet supported")
         }
