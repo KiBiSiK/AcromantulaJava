@@ -45,5 +45,12 @@ object ClassNameSymbol : AcromantulaSymbolType("java.class.name", true) {
             }
             return super.mapType(internalName)
         }
+
+        override fun map(internalName: String): String {
+            if (internalName == oldName) {
+                return newName
+            }
+            return super.map(internalName)
+        }
     }
 }
