@@ -9,7 +9,7 @@ import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
  */
 object ClassFileReference : AcromantulaReferenceType("java.class.file") {
     override fun onUpdateSymbolName(symbol: ContentMappingSymbol, reference: ContentMappingReference, newName: String) {
-        TODO("not implemented")
+        // rename file
     }
 
     override fun stringRepresentation(ref: ContentMappingReference): String {
