@@ -39,6 +39,7 @@ class JavaPlugin : AcromantulaPlugin {
         MapperFeature.registerReferenceType(ClassInterfaceReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(ClassAnnotationTypeReference, ClassNameSymbol)
         MapperFeature.registerReferenceType(ClassAnnotationValueReference, ClassNameSymbol)
+        MapperFeature.registerReferenceType(ClassFileReference, ClassNameSymbol)
 
         GenerateViewFeature.registerViewGenerator(DisassemblyViewGenerator)
 

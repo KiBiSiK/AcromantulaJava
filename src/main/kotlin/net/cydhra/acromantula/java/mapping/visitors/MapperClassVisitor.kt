@@ -34,6 +34,15 @@ class MapperClassVisitor(private val file: FileEntity) {
             null
         )
 
+        // class file name referencing the class symbol
+        MapperFeature.insertReferenceIntoDatabase(
+            ClassFileReference,
+            this.file,
+            this.identity,
+            name,
+            null
+        )
+
         if (superName != null) {
             val superIdentity = constructClassIdentity(superName)
             MapperFeature.insertSymbolIntoDatabase(
