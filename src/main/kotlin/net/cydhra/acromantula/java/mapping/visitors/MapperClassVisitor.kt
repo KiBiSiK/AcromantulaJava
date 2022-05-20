@@ -72,7 +72,7 @@ class MapperClassVisitor(private val file: FileEntity) {
             )
 
             MapperFeature.insertReferenceIntoDatabase(
-                ClassSuperReference,
+                ClassInterfaceReference,
                 file,
                 itfIdentity,
                 this.identity,
