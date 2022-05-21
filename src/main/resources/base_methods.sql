@@ -6,17 +6,18 @@
  */
 
 WITH RECURSIVE
+    MethodOwnership(MethodId, MethodName, File, ClassId, Classname)
+        AS (SELECT MTable.identifier As MethodId,
+                   MTable.name       As MethodName,
+                   MTable.file       As File,
+                   CTable.identifier As ClassId,
+                   CTable.name       As Classname
+            FROM ContentMappingSymbol AS MTable
+                     INNER JOIN ContentMappingSymbol As CTable
+                                ON MTable.type = $MethodSymbolType AND CTable.type = $ClassSymbolType
+                AND MTable.file = CTable.file),
     SubClassHierarchy(MethodId, MethodName, ClassId, ClassName, File, SuperClassId)
-        AS (WITH MethodOwnership(MethodId, MethodName, File, ClassId, Classname)
-                     AS (SELECT MTable.identifier As MethodId,
-                                MTable.name       As MethodName,
-                                MTable.file       As File,
-                                CTable.identifier As ClassId,
-                                CTable.name       As Classname
-                         FROM ContentMappingSymbol AS MTable
-                                  INNER JOIN ContentMappingSymbol As CTable
-                                             ON MTable.type = $MethodSymbolType AND CTable.type = $ClassSymbolType AND MTable.file = CTable.file)
-            SELECT CMS.MethodId, CMS.MethodName, CMS.ClassId, CMS.ClassName, CMS.File, CMR.symbol
+        AS (SELECT CMS.MethodId, CMS.MethodName, CMS.ClassId, CMS.ClassName, CMS.File, CMR.symbol
             FROM MethodOwnership AS CMS
                      LEFT JOIN ContentMappingReference AS CMR
                                ON CMR.type = $SuperTypeRef AND CMR.file = CMS.file
@@ -34,16 +35,7 @@ WITH RECURSIVE
             ON SubClassHierarchy.SuperClassId = CMSN.identifier
                 LEFT JOIN ContentMappingReference AS CMRN
                 ON CMRN.type = $SuperTypeRef AND CMSN.file = CMRN.file
-            WHERE CMSN.file IS NOT NULL),
-    MethodOwnership(MethodId, MethodName, File, ClassId, Classname)
-        AS (SELECT MTable.identifier As MethodId,
-                   MTable.name       As MethodName,
-                   MTable.file       As File,
-                   CTable.identifier As ClassId,
-                   CTable.name       As Classname
-            FROM ContentMappingSymbol AS MTable
-                     INNER JOIN ContentMappingSymbol As CTable
-                                ON MTable.type = $MethodSymbolType AND CTable.type = $ClassSymbolType AND MTable.file = CTable.file)
+            WHERE CMSN.file IS NOT NULL)
 SELECT SH.MethodId As BaseMethodId, MO.MethodId As OverrideMethodId
 FROM SubClassHierarchy AS SH
          INNER JOIN MethodOwnership AS MO
