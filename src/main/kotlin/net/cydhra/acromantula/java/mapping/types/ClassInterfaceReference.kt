@@ -1,19 +1,19 @@
 package net.cydhra.acromantula.java.mapping.types
 
-import net.cydhra.acromantula.features.mapper.AcromantulaReferenceType
-import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
+import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
+import net.cydhra.acromantula.workspace.filesystem.FileEntity
 
 /**
  * References to a class type within the list of implemented interfaces of a type
  */
-object ClassInterfaceReference : AcromantulaReferenceType("java.class.itf") {
-    override fun onUpdateSymbolName(symbol: ContentMappingSymbol, reference: ContentMappingReference, newName: String) {
-        AsmRemappingHelper.scheduleFileForRemapping(reference)
-    }
+class ClassInterfaceReference(
+    referencedSymbol: AcromantulaSymbol,
+    sourceFile: FileEntity
+) : JavaReference(referencedSymbol, sourceFile) {
+    override val referenceType: String
+        get() = "java.class.itf"
 
-    override fun stringRepresentation(ref: ContentMappingReference): String {
-        return "${ref.file.name}: IMPLEMENTED by ${ref.symbol.name}"
+    override fun displayString(): String {
+        TODO("not implemented")
     }
 }

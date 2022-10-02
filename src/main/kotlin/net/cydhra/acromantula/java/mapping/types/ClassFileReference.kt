@@ -1,17 +1,23 @@
 package net.cydhra.acromantula.java.mapping.types
 
-import net.cydhra.acromantula.features.mapper.AcromantulaReferenceType
+import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.workspace.WorkspaceService
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
+import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.apache.logging.log4j.LogManager
 
 /**
  * The class file name is a reference to the class name
  */
-object ClassFileReference : AcromantulaReferenceType("java.class.file") {
-    override fun onUpdateSymbolName(symbol: ContentMappingSymbol, reference: ContentMappingReference, newName: String) {
-        val oldPath = symbol.name.substring(0, symbol.name.lastIndexOf("/") + 1)
+class ClassFileReference(
+    referencedSymbol: AcromantulaSymbol,
+    sourceFile: FileEntity
+) : JavaReference(referencedSymbol, sourceFile) {
+
+    override val referenceType: String
+        get() = "java.class.file"
+
+    override fun onUpdateSymbolName(newName: String) {
+        val oldPath = referencedSymbol.name.substring(0, referencedSymbol.name.lastIndexOf("/") + 1)
         val newNameWithoutPath = newName.removePrefix(oldPath)
 
         if (newNameWithoutPath.contains('/')) {
@@ -19,11 +25,11 @@ object ClassFileReference : AcromantulaReferenceType("java.class.file") {
         }
 
         val newFileName = "$newNameWithoutPath.class"
-        LogManager.getLogger().debug("renaming \"${symbol.file!!.name}\" to \"$newFileName\"")
-        WorkspaceService.renameFileEntry(oldPath + symbol.file!!.name, newFileName)
+        LogManager.getLogger().debug("renaming \"${referencedSymbol.sourceFile!!.name}\" to \"$newFileName\"")
+        WorkspaceService.renameFileEntry(oldPath + referencedSymbol.sourceFile!!.name, newFileName)
     }
 
-    override fun stringRepresentation(ref: ContentMappingReference): String {
-        return ref.file.name + ": FILE NAME " + ref.symbol.name
+    override fun displayString(): String {
+        TODO("not implemented")
     }
 }

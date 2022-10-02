@@ -1,16 +1,17 @@
 package net.cydhra.acromantula.java.mapping.types
 
-import net.cydhra.acromantula.features.mapper.AcromantulaReferenceType
-import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
+import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
+import net.cydhra.acromantula.workspace.filesystem.FileEntity
 
-object FieldInstructionReference : AcromantulaReferenceType("java.insn.field") {
-    override fun onUpdateSymbolName(symbol: ContentMappingSymbol, reference: ContentMappingReference, newName: String) {
-        AsmRemappingHelper.scheduleFileForRemapping(reference)
-    }
+class FieldInstructionReference(
+    referencedSymbol: AcromantulaSymbol,
+    sourceFile: FileEntity
+) : JavaReference(referencedSymbol, sourceFile) {
 
-    override fun stringRepresentation(ref: ContentMappingReference): String {
-        return ref.file.name + ": " + (ref.owner?.let { "[${it.name}] " } ?: "") + (ref.location ?: "")
+    override val referenceType: String
+        get() = "java.insn.field"
+
+    override fun displayString(): String {
+        TODO("not implemented")
     }
 }

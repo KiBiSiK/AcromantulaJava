@@ -1,17 +1,15 @@
 package net.cydhra.acromantula.java.mapping.types
 
+import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
+import net.cydhra.acromantula.workspace.filesystem.FileEntity
 
-import net.cydhra.acromantula.features.mapper.AcromantulaReferenceType
-import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingReference
-import net.cydhra.acromantula.workspace.database.mapping.ContentMappingSymbol
+class ClassAnnotationValueReference(referencedSymbol: AcromantulaSymbol, sourceFile: FileEntity) :
+    JavaReference(referencedSymbol, sourceFile) {
 
-object ClassAnnotationValueReference : AcromantulaReferenceType("java.class.annotation.value") {
-    override fun onUpdateSymbolName(symbol: ContentMappingSymbol, reference: ContentMappingReference, newName: String) {
-        AsmRemappingHelper.scheduleFileForRemapping(reference)
-    }
+    override val referenceType: String
+        get() = "java.class.annotation.value"
 
-    override fun stringRepresentation(ref: ContentMappingReference): String {
-        return ref.file.name + ": @Annotation(Value) " + (ref.owner?.let { "[${it.name}] " } ?: "")
+    override fun displayString(): String {
+        TODO("not implemented")
     }
 }
