@@ -100,7 +100,10 @@ class JavaClassMapper : FileMapper {
         }
     }
 
-    override suspend fun getSymbolsInFile(file: FileEntity, predicate: ((AcromantulaSymbol) -> Boolean)?) {
+    override suspend fun getSymbolsInFile(
+        file: FileEntity,
+        predicate: ((AcromantulaSymbol) -> Boolean)?
+    ): Collection<AcromantulaSymbol> {
         TODO("not implemented")
     }
 
