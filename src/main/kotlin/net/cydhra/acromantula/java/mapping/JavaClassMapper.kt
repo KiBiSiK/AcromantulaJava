@@ -1,5 +1,6 @@
 package net.cydhra.acromantula.java.mapping
 
+import net.cydhra.acromantula.features.mapper.AcromantulaReference
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.features.mapper.FileMapper
 import net.cydhra.acromantula.java.mapping.visitors.MapperClassVisitor
@@ -104,6 +105,17 @@ class JavaClassMapper : FileMapper {
         file: FileEntity,
         predicate: ((AcromantulaSymbol) -> Boolean)?
     ): Collection<AcromantulaSymbol> {
+        TODO("not implemented")
+    }
+
+    override suspend fun getReferencesInFile(
+        file: FileEntity,
+        predicate: ((AcromantulaReference) -> Boolean)?
+    ): Collection<AcromantulaReference> {
+        TODO("not implemented")
+    }
+
+    override suspend fun getReferencesToSymbol(symbol: AcromantulaSymbol): Collection<AcromantulaReference> {
         TODO("not implemented")
     }
 
