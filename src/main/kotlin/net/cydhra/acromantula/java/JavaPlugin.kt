@@ -4,7 +4,6 @@ import net.cydhra.acromantula.features.mapper.MapperFeature
 import net.cydhra.acromantula.features.transformer.TransformerFeature
 import net.cydhra.acromantula.features.view.GenerateViewFeature
 import net.cydhra.acromantula.java.mapping.JavaClassMapper
-import net.cydhra.acromantula.java.mapping.types.*
 import net.cydhra.acromantula.java.transfomers.analysis.cp.ConstantPropagationTransformer
 import net.cydhra.acromantula.java.transfomers.analysis.elimination.DeadVariableEliminationTransformer
 import net.cydhra.acromantula.java.view.disassembly.DisassemblyViewGenerator
@@ -23,23 +22,6 @@ class JavaPlugin : AcromantulaPlugin {
 
     override fun initialize() {
         MapperFeature.registerMapper(JavaClassMapper())
-
-        MapperFeature.registerSymbolType(ClassNameSymbol)
-        MapperFeature.registerSymbolType(MethodNameSymbol)
-        MapperFeature.registerSymbolType(FieldNameSymbol)
-
-        MapperFeature.registerReferenceType(ClassInstructionReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(FieldInstructionReference, FieldNameSymbol)
-        MapperFeature.registerReferenceType(MethodInstructionReference, MethodNameSymbol)
-        MapperFeature.registerReferenceType(InvokeDynamicFieldReference, FieldNameSymbol)
-        MapperFeature.registerReferenceType(InvokeDynamicMethodReference, MethodNameSymbol)
-        MapperFeature.registerReferenceType(ReturnTypeReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(ParameterTypeReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(ClassSuperReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(ClassInterfaceReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(ClassAnnotationTypeReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(ClassAnnotationValueReference, ClassNameSymbol)
-        MapperFeature.registerReferenceType(ClassFileReference, ClassNameSymbol)
 
         GenerateViewFeature.registerViewGenerator(DisassemblyViewGenerator)
 
