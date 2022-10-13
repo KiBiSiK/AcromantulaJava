@@ -22,7 +22,7 @@ class JavaPlugin : AcromantulaPlugin {
     override val name: String = "Java Tool Suite"
 
     override fun initialize() {
-        MapperFeature.registerMappingFactory(JavaClassMapper())
+        MapperFeature.registerMapper(JavaClassMapper())
 
         MapperFeature.registerSymbolType(ClassNameSymbol)
         MapperFeature.registerSymbolType(MethodNameSymbol)

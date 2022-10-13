@@ -1,6 +1,7 @@
 package net.cydhra.acromantula.java.mapping
 
-import net.cydhra.acromantula.features.mapper.MappingFactory
+import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
+import net.cydhra.acromantula.features.mapper.FileMapper
 import net.cydhra.acromantula.java.mapping.visitors.MapperClassVisitor
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.apache.logging.log4j.LogManager
@@ -8,24 +9,21 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
-import java.io.PushbackInputStream
 
 /**
  * Generate mappings for symbols and references within a class file
  */
-class JavaClassMapper : MappingFactory {
+class JavaClassMapper : FileMapper {
     companion object {
         const val ASM_VERSION = Opcodes.ASM9
         private val logger = LogManager.getLogger()
     }
 
-    override val name: String = "java-class-mapper"
+    override suspend fun mapFile(file: FileEntity, content: ByteArray) {
+        if (!checkMagicBytes(content.slice(0 until 4).toTypedArray().toByteArray())) {
+            return
+        }
 
-    override fun handles(file: FileEntity, content: PushbackInputStream): Boolean {
-        return checkMagicBytes(content)
-    }
-
-    override suspend fun generateMappings(file: FileEntity, content: PushbackInputStream) {
         val classNode = ClassNode()
         try {
             ClassReader(content).accept(classNode, ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES)
@@ -85,6 +83,7 @@ class JavaClassMapper : MappingFactory {
                                 insn.desc,
                                 insn.itf
                             )
+
                             is InvokeDynamicInsnNode -> visitInvokeDynamicInsn(
                                 insn.opcode,
                                 insn.name,
@@ -92,6 +91,7 @@ class JavaClassMapper : MappingFactory {
                                 insn.bsm,
                                 insn.bsmArgs
                             )
+
                             is LdcInsnNode -> visitLdcInsn(insn.opcode, insn.cst)
                         }
                     }
@@ -100,17 +100,14 @@ class JavaClassMapper : MappingFactory {
         }
     }
 
-    private fun checkMagicBytes(content: PushbackInputStream): Boolean {
-        val magic = ByteArray(4)
-        val readSize = content.read(magic)
+    override suspend fun getSymbolsInFile(file: FileEntity, predicate: ((AcromantulaSymbol) -> Boolean)?) {
+        TODO("not implemented")
+    }
 
-        try {
-            if (readSize < 4)
-                return false
+    private fun checkMagicBytes(content: ByteArray): Boolean {
+        if (content.size < 4)
+            return false
 
-            return magic.contentEquals(byteArrayOf(0xCA.toByte(), 0xFE.toByte(), 0xBA.toByte(), 0xBE.toByte()))
-        } finally {
-            content.unread(magic)
-        }
+        return content.contentEquals(byteArrayOf(0xCA.toByte(), 0xFE.toByte(), 0xBA.toByte(), 0xBE.toByte()))
     }
 }
