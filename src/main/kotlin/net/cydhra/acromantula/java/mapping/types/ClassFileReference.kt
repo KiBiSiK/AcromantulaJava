@@ -17,7 +17,7 @@ class ClassFileReference(
         get() = "java.class.file"
 
     override fun onUpdateSymbolName(newName: String) {
-        val oldPath = referencedSymbol.name.substring(0, referencedSymbol.name.lastIndexOf("/") + 1)
+        val oldPath = referencedSymbol.getName().substring(0, referencedSymbol.getName().lastIndexOf("/") + 1)
         val newNameWithoutPath = newName.removePrefix(oldPath)
 
         if (newNameWithoutPath.contains('/')) {
