@@ -3,13 +3,14 @@ package net.cydhra.acromantula.java.mapping
 import net.cydhra.acromantula.features.mapper.AcromantulaReference
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.features.mapper.FileMapper
+import net.cydhra.acromantula.java.mapping.visitors.IdentityCache
 import net.cydhra.acromantula.java.mapping.visitors.IdentityClassVisitor
+import net.cydhra.acromantula.java.mapping.visitors.accept
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
-import org.objectweb.asm.tree.*
+import org.objectweb.asm.tree.ClassNode
 
 /**
  * Generate mappings for symbols and references within a class file
@@ -32,73 +33,13 @@ class JavaClassMapper : FileMapper {
             logger.error("error while class parsing", e)
         }
 
+        val identities = mutableListOf<String>()
+
         // map the class using the mapper visitor implementation
-        with(IdentityClassVisitor(file)) {
-            visitClass(
-                classNode.version,
-                classNode.access,
-                classNode.name,
-                classNode.signature,
-                classNode.superName,
-                classNode.interfaces?.toTypedArray()
-            )
+        classNode.accept(IdentityClassVisitor(file, identities))
+        IdentityCache.bulkInsert(identities)
 
-            classNode.visibleAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
-            classNode.invisibleAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
-            classNode.visibleTypeAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
-            classNode.invisibleTypeAnnotations?.forEach { ann -> visitAnnotation(ann.desc, ann.values) }
-
-            classNode.fields.forEach { fieldNode ->
-                visitField(
-                    fieldNode.access,
-                    fieldNode.name,
-                    fieldNode.desc,
-                    fieldNode.signature,
-                    fieldNode.value
-                )
-            }
-
-            classNode.methods.forEach { methodNode ->
-                val visitor = visitMethod(
-                    methodNode.access,
-                    methodNode.name,
-                    methodNode.desc,
-                    methodNode.signature,
-                    methodNode.exceptions?.toTypedArray()
-                )
-
-                visitor?.apply {
-                    visitReturnType(Type.getReturnType(methodNode.desc))
-                    Type.getArgumentTypes(methodNode.desc).forEach { argType ->
-                        visitParameterType(argType)
-                    }
-
-                    methodNode.instructions.forEach { insn ->
-                        when (insn) {
-                            is TypeInsnNode -> visitTypeInsn(insn.opcode, insn.desc)
-                            is FieldInsnNode -> visitFieldInsn(insn.opcode, insn.owner, insn.name, insn.desc)
-                            is MethodInsnNode -> visitMethodInsn(
-                                insn.opcode,
-                                insn.owner,
-                                insn.name,
-                                insn.desc,
-                                insn.itf
-                            )
-
-                            is InvokeDynamicInsnNode -> visitInvokeDynamicInsn(
-                                insn.opcode,
-                                insn.name,
-                                insn.desc,
-                                insn.bsm,
-                                insn.bsmArgs
-                            )
-
-                            is LdcInsnNode -> visitLdcInsn(insn.opcode, insn.cst)
-                        }
-                    }
-                }
-            }
-        }
+        // todo references mapping
     }
 
     override suspend fun getSymbolsInFile(

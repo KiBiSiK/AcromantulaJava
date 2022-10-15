@@ -17,24 +17,24 @@ import org.objectweb.asm.Type
  */
 class IdentityMethodVisitor(
     private val file: FileEntity,
-    private val ownerIdentity: String
+    private val identities: MutableList<String>
 ) : CustomMethodVisitor {
 
     override suspend fun visitReturnType(returnType: Type) {
-        IdentityCache.insertIdentity(constructClassIdentity(returnType.internalName))
+        identities += constructClassIdentity(returnType.internalName)
     }
 
     override suspend fun visitParameterType(parameterType: Type) {
-        IdentityCache.insertIdentity(constructClassIdentity(parameterType.internalName))
+        identities += constructClassIdentity(parameterType.internalName)
     }
 
     override suspend fun visitTypeInsn(opcode: Int, type: String) {
-        IdentityCache.insertIdentity(constructClassIdentity(type))
+        identities += constructClassIdentity(type)
     }
 
     override suspend fun visitFieldInsn(opcode: Int, owner: String, name: String, descriptor: String) {
-        IdentityCache.insertIdentity(constructClassIdentity(owner))
-        IdentityCache.insertIdentity(constructFieldIdentity(constructClassIdentity(owner), name, descriptor))
+        identities += constructClassIdentity(owner)
+        identities += constructFieldIdentity(constructClassIdentity(owner), name, descriptor)
     }
 
     override suspend fun visitMethodInsn(
@@ -44,8 +44,8 @@ class IdentityMethodVisitor(
         descriptor: String,
         isInterface: Boolean
     ) {
-        IdentityCache.insertIdentity(constructClassIdentity(owner))
-        IdentityCache.insertIdentity(constructMethodIdentity(constructClassIdentity(owner), name, descriptor))
+        identities += constructClassIdentity(owner)
+        identities += constructMethodIdentity(constructClassIdentity(owner), name, descriptor)
     }
 
     override suspend fun visitInvokeDynamicInsn(
@@ -68,13 +68,13 @@ class IdentityMethodVisitor(
                 Opcodes.H_GETSTATIC,
                 Opcodes.H_PUTFIELD,
                 Opcodes.H_PUTSTATIC -> {
-                    IdentityCache.insertIdentity(
+                    identities +=
                         constructFieldIdentity(
                             constructClassIdentity(handle.owner),
                             handle.name,
                             handle.desc
                         )
-                    )
+
                 }
 
                 Opcodes.H_INVOKEVIRTUAL,
@@ -82,9 +82,9 @@ class IdentityMethodVisitor(
                 Opcodes.H_INVOKESPECIAL,
                 Opcodes.H_NEWINVOKESPECIAL,
                 Opcodes.H_INVOKEINTERFACE -> {
-                    IdentityCache.insertIdentity(
+                    identities +=
                         constructMethodIdentity(constructClassIdentity(handle.owner), handle.name, handle.desc)
-                    )
+
                 }
             }
 
@@ -94,7 +94,7 @@ class IdentityMethodVisitor(
 
     override suspend fun visitLdcInsn(opcode: Int, constant: Any) {
         if (constant is Type) {
-            IdentityCache.insertIdentity(constructClassIdentity(constant.internalName))
+            identities += constructClassIdentity(constant.internalName)
         }
     }
 }

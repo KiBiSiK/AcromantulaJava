@@ -14,6 +14,7 @@ import net.cydhra.acromantula.workspace.filesystem.FileEntity
  */
 class IdentityClassVisitor(
     private val file: FileEntity,
+    private val identities: MutableList<String>
 ) : CustomClassVisitor {
 
     // the int id of the unique identity of this class
@@ -28,11 +29,11 @@ class IdentityClassVisitor(
         interfaces: Array<out String>?
     ) {
         classIdentity = constructClassIdentity(name)
-        IdentityCache.insertIdentity(classIdentity)
+        identities += classIdentity
         if (superName != null)
-            IdentityCache.insertIdentity(constructClassIdentity(superName))
+            identities += constructClassIdentity(superName)
 
-        interfaces?.forEach { itf -> IdentityCache.insertIdentity(constructClassIdentity(itf)) }
+        interfaces?.forEach { itf -> identities += constructClassIdentity(itf) }
     }
 
     override suspend fun visitAnnotation(desc: String, values: List<Any>) {
@@ -40,7 +41,7 @@ class IdentityClassVisitor(
     }
 
     override suspend fun visitField(access: Int, name: String, descriptor: String, signature: String?, value: Any?) {
-        IdentityCache.insertIdentity(constructFieldIdentity(classIdentity, name, descriptor))
+        identities += constructFieldIdentity(classIdentity, name, descriptor)
     }
 
     override suspend fun visitMethod(
@@ -50,9 +51,9 @@ class IdentityClassVisitor(
         signature: String?,
         exceptions: Array<out String>?
     ): CustomMethodVisitor? {
-        IdentityCache.insertIdentity(constructMethodIdentity(classIdentity, name, descriptor))
+        identities += constructMethodIdentity(classIdentity, name, descriptor)
 
-        return IdentityMethodVisitor(file, classIdentity)
+        return IdentityMethodVisitor(file, identities)
     }
 
 }
