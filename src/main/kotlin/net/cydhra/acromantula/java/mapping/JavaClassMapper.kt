@@ -3,7 +3,7 @@ package net.cydhra.acromantula.java.mapping
 import net.cydhra.acromantula.features.mapper.AcromantulaReference
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.features.mapper.FileMapper
-import net.cydhra.acromantula.java.mapping.visitors.MapperClassVisitor
+import net.cydhra.acromantula.java.mapping.visitors.IdentityClassVisitor
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassReader
@@ -33,8 +33,8 @@ class JavaClassMapper : FileMapper {
         }
 
         // map the class using the mapper visitor implementation
-        with(MapperClassVisitor(file)) {
-            visit(
+        with(IdentityClassVisitor(file)) {
+            visitClass(
                 classNode.version,
                 classNode.access,
                 classNode.name,
@@ -67,7 +67,7 @@ class JavaClassMapper : FileMapper {
                     methodNode.exceptions?.toTypedArray()
                 )
 
-                with(visitor) {
+                visitor?.apply {
                     visitReturnType(Type.getReturnType(methodNode.desc))
                     Type.getArgumentTypes(methodNode.desc).forEach { argType ->
                         visitParameterType(argType)

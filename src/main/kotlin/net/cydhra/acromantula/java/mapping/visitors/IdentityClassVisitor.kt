@@ -49,10 +49,10 @@ class IdentityClassVisitor(
         descriptor: String,
         signature: String?,
         exceptions: Array<out String>?
-    ): MapperMethodVisitor? {
+    ): CustomMethodVisitor? {
         IdentityCache.insertIdentity(constructMethodIdentity(classIdentity, name, descriptor))
 
-        return null
+        return IdentityMethodVisitor(file, classIdentity)
     }
 
 }

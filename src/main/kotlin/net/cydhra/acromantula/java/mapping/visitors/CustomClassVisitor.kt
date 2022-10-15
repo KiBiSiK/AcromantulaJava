@@ -17,5 +17,5 @@ interface CustomClassVisitor {
 
     suspend fun visitMethod(
         access: Int, name: String, descriptor: String, signature: String?, exceptions: Array<out String>?
-    ): MapperMethodVisitor?
+    ): CustomMethodVisitor?
 }
