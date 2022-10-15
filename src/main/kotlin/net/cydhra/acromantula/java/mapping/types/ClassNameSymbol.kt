@@ -9,6 +9,7 @@ import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import net.cydhra.acromantula.workspace.filesystem.FileTable
 import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -20,7 +21,7 @@ import org.objectweb.asm.commons.Remapper
  * uniquely describes this class
  */
 object JavaClassTable : IntIdTable() {
-    val identifier = reference("identifier", JavaIdentifierTable.identifier, onDelete = ReferenceOption.RESTRICT)
+    val identifier = reference("identifier", JavaIdentifierTable, onDelete = ReferenceOption.RESTRICT)
     val name = varchar("name", Short.MAX_VALUE.toInt())
     val file = reference("file", FileTable, onDelete = ReferenceOption.CASCADE)
     val isInterface = bool("isInterface")
@@ -28,6 +29,8 @@ object JavaClassTable : IntIdTable() {
 }
 
 class ClassNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
+
+    companion object : IntEntityClass<ClassNameSymbol>(JavaClassTable)
 
     override val canBeRenamed: Boolean
         get() = true
