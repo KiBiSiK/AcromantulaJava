@@ -10,7 +10,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.concurrent.TimeUnit
 
 /**
- * A cache for the
+ * A cache for the [JavaIdentifierTable] inserts and lookups that happen during mapping
+ *
+ * todo bulk insert-and-ignore identities per instance of an [IdentityClassVisitor], because they do not need the ids
+ *  until the next visitor pass, which will lookup them in the cache.
  */
 object IdentityCache {
 
