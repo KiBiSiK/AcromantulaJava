@@ -21,7 +21,12 @@ class JavaClassMapper : FileMapper {
         private val logger = LogManager.getLogger()
     }
 
-    override suspend fun mapFile(file: FileEntity, content: ByteArray) {
+    override suspend fun mapFile(file: FileEntity, content: ByteArray?) {
+        if (content == null) {
+            // no need to map directories
+            return
+        }
+
         if (!checkMagicBytes(content.slice(0 until 4).toTypedArray().toByteArray())) {
             return
         }
