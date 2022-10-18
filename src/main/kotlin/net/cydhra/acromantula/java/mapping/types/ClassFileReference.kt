@@ -25,8 +25,8 @@ class ClassFileReference(
         }
 
         val newFileName = "$newNameWithoutPath.class"
-        LogManager.getLogger().debug("renaming \"${referencedSymbol.sourceFile!!.name}\" to \"$newFileName\"")
-        WorkspaceService.renameFileEntry(oldPath + referencedSymbol.sourceFile!!.name, newFileName)
+        LogManager.getLogger().debug("renaming \"${sourceFile.name}\" to \"$newFileName\"")
+        WorkspaceService.renameFileEntry(sourceFile, newFileName)
     }
 
     override fun displayString(): String {
