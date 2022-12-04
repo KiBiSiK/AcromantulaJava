@@ -38,7 +38,9 @@ class JavaClassMapper : FileMapper {
             logger.error("error while class parsing", e)
         }
 
-        val identities = mutableListOf<String>()
+        // create a buffer for all found references using a simple and untested heuristic. We assume each method will
+        // add 10 references on average, and each field 2. We have never checked whether that is anywhere near accurate
+        val identities = ArrayList<String>(classNode.methods.size * 10 + classNode.fields.size * 2)
 
         // map the class using the mapper visitor implementation
         classNode.accept(IdentityClassVisitor(file, identities))
