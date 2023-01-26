@@ -2,7 +2,7 @@ package net.cydhra.acromantula.java.view.disassembly
 
 import net.cydhra.acromantula.features.view.ViewGeneratorStrategy
 import net.cydhra.acromantula.workspace.WorkspaceService
-import net.cydhra.acromantula.workspace.disassembly.FileRepresentation
+import net.cydhra.acromantula.workspace.disassembly.FileView
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import net.cydhra.acromantula.workspace.filesystem.FileType
 import net.cydhra.acromantula.workspace.filesystem.textFileType
@@ -27,7 +27,7 @@ object DisassemblyViewGenerator : ViewGeneratorStrategy {
         return fileEntity.name.endsWith(".class")
     }
 
-    override fun generateView(fileEntity: FileEntity): FileRepresentation {
+    override fun generateView(fileEntity: FileEntity): FileView {
         val reader = ClassReader(WorkspaceService.getFileContent(fileEntity))
         val node = ClassNode()
         reader.accept(node, 0)

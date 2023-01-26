@@ -28,6 +28,6 @@ class ConstantPropagationTransformer : FileTransformer {
 
         val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_MAXS)
         node.accept(writer)
-        WorkspaceService.updateFileEntry(fileEntity, writer.toByteArray())
+        WorkspaceService.updateFileContent(fileEntity, writer.toByteArray())
     }
 }
