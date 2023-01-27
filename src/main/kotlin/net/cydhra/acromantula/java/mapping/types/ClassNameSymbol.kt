@@ -23,7 +23,7 @@ import org.objectweb.asm.commons.Remapper
 object JavaClassTable : IntIdTable() {
     val identifier = reference("identifier", JavaIdentifierTable, onDelete = ReferenceOption.RESTRICT)
     val name = varchar("name", Short.MAX_VALUE.toInt())
-    val file = reference("file", FileTable, onDelete = ReferenceOption.CASCADE)
+    val file = reference("file", FileTable, onDelete = ReferenceOption.CASCADE).nullable()
     val isInterface = bool("isInterface")
     val isAnnotation = bool("isAnnotation")
 }
@@ -35,10 +35,8 @@ class ClassNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
     override val canBeRenamed: Boolean
         get() = true
 
-    /**
-     * Source file of this class symbol. Access with database transaction
-     */
-    override var sourceFile by FileEntity referencedOn JavaClassTable.file
+    override val sourceFile: FileEntity?
+        get() = TODO("Not yet implemented")
 
     /**
      * Unique java symbol identifier entity. Access with database transaction

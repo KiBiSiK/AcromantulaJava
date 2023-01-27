@@ -8,7 +8,6 @@ import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
 import net.cydhra.acromantula.java.util.constructFieldIdentity
 import net.cydhra.acromantula.java.util.reconstructClassName
 import net.cydhra.acromantula.java.util.reconstructFieldDefinition
-import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import net.cydhra.acromantula.workspace.filesystem.FileTable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -39,7 +38,8 @@ class FieldNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
      */
     var fieldName by JavaFieldTable.name
 
-    override val sourceFile by FileEntity referencedOn JavaFieldTable.sourceFile
+    override val sourceFile
+        get() = TODO("not yet implemented")
 
     override fun getName(): String {
         return fieldName

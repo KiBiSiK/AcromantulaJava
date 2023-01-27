@@ -34,7 +34,8 @@ class MethodNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
      */
     var identifier by JavaIdentifier referencedOn JavaMethodTable.identifier
 
-    override var sourceFile by FileEntity referencedOn JavaMethodTable.sourceFile
+    override val sourceFile: FileEntity
+        get() = TODO("not yet implemented")
 
     /**
      * Method name. Update only via [updateName]

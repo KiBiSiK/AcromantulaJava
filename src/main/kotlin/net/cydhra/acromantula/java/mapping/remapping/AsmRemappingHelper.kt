@@ -66,6 +66,6 @@ object AsmRemappingHelper {
         node.accept(ClassRemapper(writer, remapper))
         val remappedContent = writer.toByteArray()
 
-        WorkspaceService.updateFileEntry(file, remappedContent)
+        WorkspaceService.updateFileContent(file, remappedContent)
     }
 }
