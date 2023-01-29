@@ -2,6 +2,7 @@ package net.cydhra.acromantula.java.mapping
 
 import net.cydhra.acromantula.features.mapper.AcromantulaReference
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
+import net.cydhra.acromantula.features.mapper.EmptyMapperState
 import net.cydhra.acromantula.features.mapper.FileMapper
 import net.cydhra.acromantula.java.mapping.visitors.IdentityCache
 import net.cydhra.acromantula.java.mapping.visitors.IdentityClassVisitor
@@ -15,13 +16,13 @@ import org.objectweb.asm.tree.ClassNode
 /**
  * Generate mappings for symbols and references within a class file
  */
-class JavaClassMapper : FileMapper {
+class JavaClassMapper : FileMapper<EmptyMapperState> {
     companion object {
         const val ASM_VERSION = Opcodes.ASM9
         private val logger = LogManager.getLogger()
     }
 
-    override suspend fun mapFile(file: FileEntity, content: ByteArray?) {
+    override suspend fun mapFile(file: FileEntity, content: ByteArray?, state: EmptyMapperState?) {
         if (content == null) {
             // no need to map directories
             return
