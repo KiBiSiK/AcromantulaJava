@@ -14,4 +14,8 @@ class ParameterTypeReference(
     override fun displayString(): String {
         TODO("not implemented")
     }
+
+    override fun writeReferenceToDatabase() {
+        TODO("Not yet implemented")
+    }
 }

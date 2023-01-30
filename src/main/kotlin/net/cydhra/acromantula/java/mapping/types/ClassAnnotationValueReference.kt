@@ -12,4 +12,8 @@ class ClassAnnotationValueReference(referencedSymbol: AcromantulaSymbol, sourceF
     override fun displayString(): String {
         TODO("not implemented")
     }
+
+    override fun writeReferenceToDatabase() {
+        TODO("Not yet implemented")
+    }
 }

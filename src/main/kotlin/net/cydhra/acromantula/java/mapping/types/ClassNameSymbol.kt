@@ -1,6 +1,5 @@
 package net.cydhra.acromantula.java.mapping.types
 
-import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.features.mapper.MapperFeature
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
 import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
@@ -28,11 +27,9 @@ class ClassNameSymbol(
     val isInterface: Boolean,
     val isAnnotation: Boolean,
     private var className: String,
-) : AcromantulaSymbol {
-
+) : JavaSymbol() {
     override val canBeRenamed: Boolean
         get() = true
-
 
     /**
      * Get qualified class name
@@ -40,6 +37,7 @@ class ClassNameSymbol(
     override fun getName(): String {
         return this.className
     }
+
 
     override suspend fun updateName(newName: String) {
         val oldPath = this.className.substring(0, this.className.lastIndexOf("/") + 1)
@@ -72,6 +70,10 @@ class ClassNameSymbol(
                 else -> "class"
             }
         } $className"
+    }
+
+    override fun writeIntoDatabase() {
+        TODO("Not yet implemented")
     }
 
     class ClassNameRemapper(

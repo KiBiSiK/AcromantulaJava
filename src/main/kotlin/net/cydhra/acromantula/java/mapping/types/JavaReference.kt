@@ -19,4 +19,10 @@ abstract class JavaReference(
     override fun onUpdateSymbolName(newName: String) {
         AsmRemappingHelper.scheduleFileForRemapping(this)
     }
+
+    /**
+     * Write reference into corresponding database. This method is called from
+     * [net.cydhra.acromantula.java.mapping.events.MappingDatabaseSync].
+     */
+    abstract fun writeReferenceToDatabase()
 }
