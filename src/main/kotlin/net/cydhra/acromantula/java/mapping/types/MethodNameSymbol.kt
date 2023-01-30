@@ -1,20 +1,10 @@
 package net.cydhra.acromantula.java.mapping.types
 
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
-import net.cydhra.acromantula.features.mapper.MapperFeature
-import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
-import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
-import net.cydhra.acromantula.java.util.constructMethodIdentity
-import net.cydhra.acromantula.java.util.reconstructClassName
-import net.cydhra.acromantula.java.util.reconstructMethodDefinition
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import net.cydhra.acromantula.workspace.filesystem.FileTable
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.objectweb.asm.commons.Remapper
 
 object JavaMethodTable : IntIdTable() {
@@ -23,52 +13,44 @@ object JavaMethodTable : IntIdTable() {
     val sourceFile = reference("file", FileTable)
 }
 
-class MethodNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
-    companion object : IntEntityClass<MethodNameSymbol>(JavaMethodTable)
+class MethodNameSymbol() : AcromantulaSymbol {
 
     override val canBeRenamed: Boolean
         get() = true
 
-    /**
-     * Unique java symbol identifier entity. Access with database transaction
-     */
-    var identifier by JavaIdentifier referencedOn JavaMethodTable.identifier
-
     override val sourceFile: FileEntity
         get() = TODO("not yet implemented")
 
-    /**
-     * Method name. Update only via [updateName]
-     */
-    var methodName by JavaMethodTable.name
-
     override fun getName(): String {
-        return methodName
+        TODO("not yet implemented")
+//        return methodName
     }
 
     override suspend fun updateName(newName: String) {
-        val (classIdentity, _, methodDescriptor) = transaction {
-            reconstructMethodDefinition(identifier.value)
-        }
-
-        val allReferences = MapperFeature.getReferencesToSymbol(this)
-        for (reference in allReferences) {
-            reference.onUpdateSymbolName(newName)
-        }
-
-        AsmRemappingHelper.remapScheduledFiles(
-            this,
-            MethodNameRemapper(reconstructClassName(classIdentity), methodName, methodDescriptor, newName)
-        )
-
-        transaction {
-            methodName = newName
-            identifier.value = constructMethodIdentity(classIdentity, newName, methodDescriptor)
-        }
+//        val (classIdentity, _, methodDescriptor) = transaction {
+//            reconstructMethodDefinition(identifier.value)
+//        }
+//
+//        val allReferences = MapperFeature.getReferencesToSymbol(this)
+//        for (reference in allReferences) {
+//            reference.onUpdateSymbolName(newName)
+//        }
+//
+//        AsmRemappingHelper.remapScheduledFiles(
+//            this,
+//            MethodNameRemapper(reconstructClassName(classIdentity), methodName, methodDescriptor, newName)
+//        )
+//
+//        transaction {
+//            methodName = newName
+//            identifier.value = constructMethodIdentity(classIdentity, newName, methodDescriptor)
+//        }
+        TODO("not yet implemented")
     }
 
     override fun displayString(): String {
-        return "visibility returnType $methodName descriptor"
+//        return "visibility returnType $methodName descriptor"
+        TODO("not yet implemented")
     }
 
     /**

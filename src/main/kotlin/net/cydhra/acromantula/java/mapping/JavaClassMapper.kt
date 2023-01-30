@@ -2,10 +2,8 @@ package net.cydhra.acromantula.java.mapping
 
 import net.cydhra.acromantula.features.mapper.AcromantulaReference
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
-import net.cydhra.acromantula.features.mapper.EmptyMapperState
 import net.cydhra.acromantula.features.mapper.FileMapper
-import net.cydhra.acromantula.java.mapping.visitors.IdentityCache
-import net.cydhra.acromantula.java.mapping.visitors.IdentityClassVisitor
+import net.cydhra.acromantula.java.mapping.visitors.MappingClassVisitor
 import net.cydhra.acromantula.java.mapping.visitors.accept
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.apache.logging.log4j.LogManager
@@ -16,13 +14,22 @@ import org.objectweb.asm.tree.ClassNode
 /**
  * Generate mappings for symbols and references within a class file
  */
-class JavaClassMapper : FileMapper<EmptyMapperState> {
+class JavaClassMapper : FileMapper<ClassMapperContext> {
     companion object {
         const val ASM_VERSION = Opcodes.ASM9
         private val logger = LogManager.getLogger()
     }
 
-    override suspend fun mapFile(file: FileEntity, content: ByteArray?, state: EmptyMapperState?) {
+    override fun initializeMapper(file: String): ClassMapperContext {
+        // a simple heuristic to initialize the identity cache with a reasonable size
+        return when {
+            file.endsWith(".class") -> ClassMapperContext(1 shl 7)
+            file.endsWith(".jar") || file.endsWith(".zip") || file.endsWith(".war") -> ClassMapperContext(1 shl 12)
+            else -> ClassMapperContext(16)
+        }
+    }
+
+    override suspend fun mapFile(file: FileEntity, content: ByteArray?, state: ClassMapperContext?) {
         if (content == null) {
             // no need to map directories
             return
@@ -39,27 +46,20 @@ class JavaClassMapper : FileMapper<EmptyMapperState> {
             logger.error("error while class parsing", e)
         }
 
-        // create a buffer for all found references using a simple and untested heuristic. We assume each method will
-        // add 10 references on average, and each field 2. We have never checked whether that is anywhere near accurate
-        val identities = ArrayList<String>(classNode.methods.size * 10 + classNode.fields.size * 2)
-
         // map the class using the mapper visitor implementation
-        classNode.accept(IdentityClassVisitor(file, identities))
-        IdentityCache.bulkInsert(identities)
+        classNode.accept(MappingClassVisitor(file, state!!))
 
         // todo references mapping
     }
 
     override suspend fun getSymbolsInFile(
-        file: FileEntity,
-        predicate: ((AcromantulaSymbol) -> Boolean)?
+        file: FileEntity, predicate: ((AcromantulaSymbol) -> Boolean)?
     ): Collection<AcromantulaSymbol> {
         TODO("not implemented")
     }
 
     override suspend fun getReferencesInFile(
-        file: FileEntity,
-        predicate: ((AcromantulaReference) -> Boolean)?
+        file: FileEntity, predicate: ((AcromantulaReference) -> Boolean)?
     ): Collection<AcromantulaReference> {
         TODO("not implemented")
     }
@@ -69,8 +69,7 @@ class JavaClassMapper : FileMapper<EmptyMapperState> {
     }
 
     private fun checkMagicBytes(content: ByteArray): Boolean {
-        if (content.size < 4)
-            return false
+        if (content.size < 4) return false
 
         return content.contentEquals(byteArrayOf(0xCA.toByte(), 0xFE.toByte(), 0xBA.toByte(), 0xBE.toByte()))
     }

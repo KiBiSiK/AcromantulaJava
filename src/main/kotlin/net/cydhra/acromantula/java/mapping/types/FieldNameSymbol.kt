@@ -1,19 +1,9 @@
 package net.cydhra.acromantula.java.mapping.types
 
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
-import net.cydhra.acromantula.features.mapper.MapperFeature
-import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
-import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
-import net.cydhra.acromantula.java.util.constructFieldIdentity
-import net.cydhra.acromantula.java.util.reconstructClassName
-import net.cydhra.acromantula.java.util.reconstructFieldDefinition
 import net.cydhra.acromantula.workspace.filesystem.FileTable
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.objectweb.asm.commons.Remapper
 
 object JavaFieldTable : IntIdTable() {
@@ -22,51 +12,43 @@ object JavaFieldTable : IntIdTable() {
     val sourceFile = reference("file", FileTable)
 }
 
-class FieldNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
-    companion object : IntEntityClass<FieldNameSymbol>(JavaFieldTable)
+class FieldNameSymbol() : AcromantulaSymbol {
 
     override val canBeRenamed: Boolean
         get() = true
 
-    /**
-     * Unique java symbol identifier entity. Access with database transaction
-     */
-    var identifier by JavaIdentifier referencedOn JavaFieldTable.identifier
-
-    /**
-     * Field name. Do not update directly, call [updateName]
-     */
-    var fieldName by JavaFieldTable.name
 
     override val sourceFile
         get() = TODO("not yet implemented")
 
     override fun getName(): String {
-        return fieldName
+        TODO("not yet implemented")
     }
 
     override suspend fun updateName(newName: String) {
-        val (classIdentity, _, fieldDescriptor) = reconstructFieldDefinition(identifier.value)
-
-        val allReferences = MapperFeature.getReferencesToSymbol(this)
-        for (reference in allReferences) {
-            reference.onUpdateSymbolName(newName)
-        }
-
-        AsmRemappingHelper.remapScheduledFiles(
-            this,
-            FieldNameRemapper(reconstructClassName(classIdentity), fieldName, fieldDescriptor, newName)
-        )
-
-        transaction {
-            fieldName = newName
-
-            identifier.value = constructFieldIdentity(classIdentity, newName, fieldDescriptor)
-        }
+//        val (classIdentity, _, fieldDescriptor) = reconstructFieldDefinition(identifier.value)
+//
+//        val allReferences = MapperFeature.getReferencesToSymbol(this)
+//        for (reference in allReferences) {
+//            reference.onUpdateSymbolName(newName)
+//        }
+//
+//        AsmRemappingHelper.remapScheduledFiles(
+//            this,
+//            FieldNameRemapper(reconstructClassName(classIdentity), fieldName, fieldDescriptor, newName)
+//        )
+//
+//        transaction {
+//            fieldName = newName
+//
+//            identifier.value = constructFieldIdentity(classIdentity, newName, fieldDescriptor)
+//        }
+        TODO("not yet implemented")
     }
 
     override fun displayString(): String {
-        return "visibility type $fieldName"
+        TODO("not yet implemented")
+//        return "visibility type $fieldName"
     }
 
     /**

@@ -2,18 +2,12 @@ package net.cydhra.acromantula.java.mapping.types
 
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.features.mapper.MapperFeature
-import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
 import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
-import net.cydhra.acromantula.java.util.constructClassIdentity
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import net.cydhra.acromantula.workspace.filesystem.FileTable
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.objectweb.asm.commons.Remapper
 
 /**
@@ -28,35 +22,17 @@ object JavaClassTable : IntIdTable() {
     val isAnnotation = bool("isAnnotation")
 }
 
-class ClassNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
-
-    companion object : IntEntityClass<ClassNameSymbol>(JavaClassTable)
+class ClassNameSymbol(
+    val identity: String,
+    override val sourceFile: FileEntity?,
+    val isInterface: Boolean,
+    val isAnnotation: Boolean,
+    private var className: String,
+) : AcromantulaSymbol {
 
     override val canBeRenamed: Boolean
         get() = true
 
-    override val sourceFile: FileEntity?
-        get() = TODO("Not yet implemented")
-
-    /**
-     * Unique java symbol identifier entity. Access with database transaction
-     */
-    var identifier by JavaIdentifier referencedOn JavaClassTable.identifier
-
-    /**
-     * Whether this class file is an interface definition. Do not update.
-     */
-    var isInterface by JavaClassTable.isInterface
-
-    /**
-     * Whether this class file is an annotation definition. Do not update.
-     */
-    var isAnnotation by JavaClassTable.isAnnotation
-
-    /**
-     * Qualified class name. Update using [updateName]
-     */
-    private var className by JavaClassTable.name
 
     /**
      * Get qualified class name
@@ -80,13 +56,12 @@ class ClassNameSymbol(id: EntityID<Int>) : IntEntity(id), AcromantulaSymbol {
             this, ClassNameRemapper(this.className, newName)
         )
 
-        transaction {
-            // update identifier
-            identifier.value = constructClassIdentity(newName)
+        TODO("not yet implemented")
+        // update identifier
+//            identifier.value = constructClassIdentity(newName)
 
-            // update class name
-            this@ClassNameSymbol.className = newName
-        }
+        // update class name
+        this@ClassNameSymbol.className = newName
     }
 
     override fun displayString(): String {
