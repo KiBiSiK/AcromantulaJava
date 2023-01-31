@@ -16,7 +16,7 @@ object JavaMethodTable : IntIdTable() {
     val name = varchar("name", Short.MAX_VALUE.toInt())
     val descriptor = varchar("descriptor", Short.MAX_VALUE.toInt())
     val signature = varchar("signature", Short.MAX_VALUE.toInt()).nullable()
-    val sourceFile = integer("source_file").nullable()
+    val sourceFile = integer("source_file")
 }
 
 class MethodNameSymbol(
@@ -25,7 +25,7 @@ class MethodNameSymbol(
     private var methodName: String,
     val descriptor: String,
     val signature: String?,
-    override val sourceFile: FileEntity?
+    override val sourceFile: FileEntity
 ) : JavaSymbol() {
 
     companion object {
@@ -46,7 +46,8 @@ class MethodNameSymbol(
                             methodName = result[JavaMethodTable.name],
                             descriptor = result[JavaMethodTable.descriptor],
                             signature = result[JavaMethodTable.signature],
-                            sourceFile = result[JavaMethodTable.sourceFile]?.let { WorkspaceService.queryPath(it) })
+                            sourceFile = WorkspaceService.queryPath(result[JavaMethodTable.sourceFile])
+                        )
                     }
             }
         }

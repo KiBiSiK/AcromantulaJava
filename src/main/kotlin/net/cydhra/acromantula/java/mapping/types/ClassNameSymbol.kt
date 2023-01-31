@@ -23,7 +23,7 @@ object JavaClassTable : IntIdTable() {
     val access = integer("access")
     val name = varchar("name", Short.MAX_VALUE.toInt())
     val signature = varchar("signature", Short.MAX_VALUE.toInt()).nullable()
-    val sourceFile = integer("file").nullable()
+    val sourceFile = integer("file")
 }
 
 class ClassNameSymbol(
@@ -31,7 +31,7 @@ class ClassNameSymbol(
     val access: Int,
     private var className: String,
     val signature: String?,
-    override val sourceFile: FileEntity?,
+    override val sourceFile: FileEntity,
 ) : JavaSymbol() {
 
     companion object {
@@ -51,7 +51,8 @@ class ClassNameSymbol(
                             access = result[JavaClassTable.access],
                             className = result[JavaClassTable.name],
                             signature = result[JavaClassTable.signature],
-                            sourceFile = result[JavaClassTable.sourceFile]?.let { WorkspaceService.queryPath(it) })
+                            sourceFile = WorkspaceService.queryPath(result[JavaClassTable.sourceFile])
+                        )
                     }
             }
         }

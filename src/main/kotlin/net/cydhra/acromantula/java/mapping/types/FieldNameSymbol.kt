@@ -16,7 +16,7 @@ object JavaFieldTable : IntIdTable() {
     val name = varchar("name", Short.MAX_VALUE.toInt())
     val descriptor = varchar("descriptor", Short.MAX_VALUE.toInt())
     val signature = varchar("signature", Short.MAX_VALUE.toInt()).nullable()
-    val sourceFile = integer("file").nullable()
+    val sourceFile = integer("file")
 }
 
 class FieldNameSymbol(
@@ -25,7 +25,7 @@ class FieldNameSymbol(
     private var fieldName: String,
     val descriptor: String,
     val signature: String?,
-    override var sourceFile: FileEntity?
+    override var sourceFile: FileEntity
 ) : JavaSymbol() {
 
     companion object {
@@ -46,7 +46,8 @@ class FieldNameSymbol(
                             fieldName = result[JavaFieldTable.name],
                             descriptor = result[JavaFieldTable.descriptor],
                             signature = result[JavaFieldTable.signature],
-                            sourceFile = result[JavaFieldTable.sourceFile]?.let { WorkspaceService.queryPath(it) })
+                            sourceFile = WorkspaceService.queryPath(result[JavaFieldTable.sourceFile])
+                        )
                     }
             }
         }
