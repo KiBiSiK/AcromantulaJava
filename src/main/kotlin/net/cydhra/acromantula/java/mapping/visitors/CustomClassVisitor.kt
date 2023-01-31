@@ -11,7 +11,7 @@ interface CustomClassVisitor {
         version: Int, access: Int, name: String, signature: String?, superName: String?, interfaces: Array<out String>?
     )
 
-    suspend fun visitAnnotation(desc: String, values: List<Any>)
+    suspend fun visitAnnotation(desc: String, values: List<Any>?)
 
     suspend fun visitField(
         access: Int, name: String, descriptor: String, signature: String?, value: Any?

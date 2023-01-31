@@ -56,7 +56,7 @@ class MappingClassVisitor(
 //        }
     }
 
-    override suspend fun visitAnnotation(desc: String, values: List<Any>) {
+    override suspend fun visitAnnotation(desc: String, values: List<Any>?) {
 
     }
 
