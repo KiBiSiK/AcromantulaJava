@@ -8,9 +8,10 @@ import net.cydhra.acromantula.java.util.ClassKind
 import net.cydhra.acromantula.java.util.Visibility
 import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.objectweb.asm.commons.Remapper
 
@@ -99,14 +100,14 @@ class ClassNameSymbol(
             signature?.let { "<$it>" }).joinToString(" ")
     }
 
-    override fun writeIntoDatabase() {
-        WorkspaceService.databaseTransaction {
-            JavaClassTable.insert {
+    override fun writeIntoDatabase(): EntityID<Int> {
+        return WorkspaceService.databaseTransaction {
+            JavaClassTable.insertAndGetId {
                 it[identifier] = this@ClassNameSymbol.identifier.databaseId
                 it[access] = this@ClassNameSymbol.access
                 it[name] = this@ClassNameSymbol.className
                 it[signature] = this@ClassNameSymbol.signature
-                it[sourceFile] = this@ClassNameSymbol.sourceFile?.resource
+                it[sourceFile] = this@ClassNameSymbol.sourceFile.resource
             }
         }
     }

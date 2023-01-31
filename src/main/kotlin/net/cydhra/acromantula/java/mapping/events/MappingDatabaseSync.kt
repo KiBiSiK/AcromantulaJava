@@ -26,7 +26,7 @@ class MappingDatabaseSync {
     }
 
     fun onSymbolAdded(event: JavaMappingEvent.AddedSymbolEvent) {
-        event.symbol.writeIntoDatabase()
+        event.symbol.databaseId = event.symbol.writeIntoDatabase()
     }
 
     fun onReferenceAdded(event: JavaMappingEvent.AddedReferenceEvent) {

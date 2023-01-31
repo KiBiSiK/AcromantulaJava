@@ -5,8 +5,9 @@ import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
 import net.cydhra.acromantula.java.util.Visibility
 import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.objectweb.asm.commons.Remapper
 
@@ -89,15 +90,15 @@ class FieldNameSymbol(
             signature?.let { "<$it>" }).joinToString(" ")
     }
 
-    override fun writeIntoDatabase() {
-        WorkspaceService.databaseTransaction {
-            JavaFieldTable.insert {
+    override fun writeIntoDatabase(): EntityID<Int> {
+        return WorkspaceService.databaseTransaction {
+            JavaFieldTable.insertAndGetId {
                 it[identifier] = this@FieldNameSymbol.identifier.databaseId
                 it[access] = this@FieldNameSymbol.access
                 it[name] = this@FieldNameSymbol.fieldName
                 it[descriptor] = this@FieldNameSymbol.descriptor
                 it[signature] = this@FieldNameSymbol.signature
-                it[sourceFile] = this@FieldNameSymbol.sourceFile?.resource
+                it[sourceFile] = this@FieldNameSymbol.sourceFile.resource
             }
         }
     }

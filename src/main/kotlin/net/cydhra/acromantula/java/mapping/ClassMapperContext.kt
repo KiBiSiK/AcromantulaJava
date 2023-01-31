@@ -7,6 +7,7 @@ import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
 import net.cydhra.acromantula.java.mapping.events.JavaMappingEvent
 import net.cydhra.acromantula.java.mapping.events.MappingDatabaseSync
 import net.cydhra.acromantula.java.mapping.events.MappingEventBroker
+import net.cydhra.acromantula.java.mapping.types.JavaReference
 import net.cydhra.acromantula.java.mapping.types.JavaSymbol
 import java.util.*
 
@@ -30,8 +31,8 @@ class ClassMapperContext(identityCacheCapacity: Int) : MapperState {
         databaseSyncer.dispatch(JavaMappingEvent.AddedSymbolEvent(symbol))
     }
 
-    fun addReference(identifier: String) {
-        retrieveIdentifier(identifier)
+    fun addReference(reference: JavaReference) {
+        databaseSyncer.dispatch(JavaMappingEvent.AddedReferenceEvent(reference))
     }
 
     /**
