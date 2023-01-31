@@ -1,5 +1,7 @@
 package net.cydhra.acromantula.java.mapping
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.features.mapper.MapperState
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
@@ -44,6 +46,8 @@ class ClassMapperContext(identityCacheCapacity: Int) : MapperState {
 
     override suspend fun onFinishMapping() {
         // shutdown the database syncer and suspend until it has emptied the queue
-        databaseSyncer.shutdown()
+        withContext(Dispatchers.IO) {
+            databaseSyncer.shutdown()
+        }
     }
 }
