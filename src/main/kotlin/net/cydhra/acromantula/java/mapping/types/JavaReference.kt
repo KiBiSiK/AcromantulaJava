@@ -9,7 +9,7 @@ import net.cydhra.acromantula.workspace.filesystem.FileEntity
  * Common behavior of all reference types that java files define
  */
 abstract class JavaReference(
-    override val referencedSymbol: AcromantulaSymbol,
+    override val referencedSymbol: AcromantulaSymbol?,
     override val sourceFile: FileEntity
 ) : AcromantulaReference {
 

@@ -2,6 +2,7 @@ package net.cydhra.acromantula.java.mapping.visitors
 
 import net.cydhra.acromantula.java.mapping.ClassMapperContext
 import net.cydhra.acromantula.java.mapping.types.ClassNameSymbol
+import net.cydhra.acromantula.java.mapping.types.ClassSuperReference
 import net.cydhra.acromantula.java.mapping.types.FieldNameSymbol
 import net.cydhra.acromantula.java.mapping.types.MethodNameSymbol
 import net.cydhra.acromantula.java.util.constructClassIdentity
@@ -22,31 +23,33 @@ class MappingClassVisitor(
     // the int id of the unique identity of this class
     private lateinit var classIdentity: String
 
+    private lateinit var classSymbol: ClassNameSymbol
+
     override suspend fun visitClass(
         version: Int, access: Int, name: String, signature: String?, superName: String?, interfaces: Array<out String>?
     ) {
         classIdentity = constructClassIdentity(name)
-        context.addSymbol(
-            ClassNameSymbol(
-                identifier = context.retrieveIdentifier(classIdentity),
-                sourceFile = file,
-                access = access,
-                signature = signature,
-                className = name,
-            )
+        classSymbol = ClassNameSymbol(
+            identifier = context.retrieveIdentifier(classIdentity),
+            sourceFile = file,
+            access = access,
+            signature = signature,
+            className = name,
         )
-//        if (superName != null) {
-//            context.addSymbol(
-//                constructClassIdentity(superName), ClassNameSymbol(
-//                    identity = superName,
-//                    sourceFile = null,
-//                    isInterface = false, // TODO will this be false if this class is an interface too?
-//                    isAnnotation = false,
-//                    className = superName
-//                )
-//            )
-//        }
-//
+
+        context.addSymbol(classSymbol)
+
+        if (superName != null) {
+            val superIdentifier = context.retrieveIdentifier(constructClassIdentity(superName))
+            context.addReference(
+                ClassSuperReference(
+                    referencedIdentifier = superIdentifier,
+                    superClassSymbol = null,
+                    sourceFile = file,
+                    extendingClass = classSymbol
+                )
+            )
+        }
 //        interfaces?.forEach { itf ->
 //            context.addSymbol(
 //                constructClassIdentity(itf), ClassNameSymbol(
