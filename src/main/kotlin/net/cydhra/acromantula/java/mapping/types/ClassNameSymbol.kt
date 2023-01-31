@@ -1,12 +1,16 @@
 package net.cydhra.acromantula.java.mapping.types
 
 import net.cydhra.acromantula.features.mapper.MapperFeature
+import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
 import net.cydhra.acromantula.java.mapping.remapping.AsmRemappingHelper
+import net.cydhra.acromantula.java.util.ClassKind
+import net.cydhra.acromantula.java.util.Visibility
+import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
-import net.cydhra.acromantula.workspace.filesystem.FileTable
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.insert
 import org.objectweb.asm.commons.Remapper
 
 /**
@@ -15,19 +19,20 @@ import org.objectweb.asm.commons.Remapper
  */
 object JavaClassTable : IntIdTable() {
     val identifier = reference("identifier", JavaIdentifierTable, onDelete = ReferenceOption.RESTRICT)
+    val access = integer("access")
     val name = varchar("name", Short.MAX_VALUE.toInt())
-    val file = reference("file", FileTable, onDelete = ReferenceOption.CASCADE).nullable()
-    val isInterface = bool("isInterface")
-    val isAnnotation = bool("isAnnotation")
+    val signature = varchar("signature", Short.MAX_VALUE.toInt()).nullable()
+    val sourceFile = integer("file").nullable()
 }
 
 class ClassNameSymbol(
-    val identity: String,
-    override val sourceFile: FileEntity?,
-    val isInterface: Boolean,
-    val isAnnotation: Boolean,
+    val identifier: JavaIdentifier,
+    val access: Int,
     private var className: String,
+    val signature: String?,
+    override val sourceFile: FileEntity?,
 ) : JavaSymbol() {
+
     override val canBeRenamed: Boolean
         get() = true
 
@@ -63,17 +68,24 @@ class ClassNameSymbol(
     }
 
     override fun displayString(): String {
-        return "visibility ${
-            when {
-                isInterface -> "interface"
-                isAnnotation -> "@annotation class"
-                else -> "class"
-            }
-        } $className"
+        return listOfNotNull(
+            Visibility.fromAccess(access).token,
+            ClassKind.fromAccess(access).token,
+            className,
+            signature?.let { "<$it>" }
+        ).joinToString(" ")
     }
 
     override fun writeIntoDatabase() {
-        TODO("Not yet implemented")
+        WorkspaceService.databaseTransaction {
+            JavaClassTable.insert {
+                it[identifier] = this@ClassNameSymbol.identifier.databaseId
+                it[access] = this@ClassNameSymbol.access
+                it[name] = this@ClassNameSymbol.className
+                it[signature] = this@ClassNameSymbol.signature
+                it[sourceFile] = this@ClassNameSymbol.sourceFile?.resource
+            }
+        }
     }
 
     class ClassNameRemapper(

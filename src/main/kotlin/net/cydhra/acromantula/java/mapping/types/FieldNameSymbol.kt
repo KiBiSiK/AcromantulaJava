@@ -1,29 +1,38 @@
 package net.cydhra.acromantula.java.mapping.types
 
-import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
+import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
-import net.cydhra.acromantula.workspace.filesystem.FileTable
+import net.cydhra.acromantula.java.util.Visibility
+import net.cydhra.acromantula.workspace.WorkspaceService
+import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.insert
 import org.objectweb.asm.commons.Remapper
 
 object JavaFieldTable : IntIdTable() {
     val identifier = reference("identifier", JavaIdentifierTable)
+    val access = integer("access")
     val name = varchar("name", Short.MAX_VALUE.toInt())
-    val sourceFile = reference("file", FileTable)
+    val descriptor = varchar("descriptor", Short.MAX_VALUE.toInt())
+    val signature = varchar("signature", Short.MAX_VALUE.toInt()).nullable()
+    val sourceFile = integer("file").nullable()
 }
 
-class FieldNameSymbol() : AcromantulaSymbol {
-
+class FieldNameSymbol(
+    val access: Int,
+    val identifier: JavaIdentifier,
+    private var fieldName: String,
+    val descriptor: String,
+    val signature: String?,
+    override var sourceFile: FileEntity?
+) : JavaSymbol() {
     override val canBeRenamed: Boolean
         get() = true
 
-
-    override val sourceFile
-        get() = TODO("not yet implemented")
-
     override fun getName(): String {
-        TODO("not yet implemented")
+        return fieldName
     }
+
 
     override suspend fun updateName(newName: String) {
 //        val (classIdentity, _, fieldDescriptor) = reconstructFieldDefinition(identifier.value)
@@ -47,8 +56,23 @@ class FieldNameSymbol() : AcromantulaSymbol {
     }
 
     override fun displayString(): String {
-        TODO("not yet implemented")
-//        return "visibility type $fieldName"
+        return listOfNotNull(Visibility.fromAccess(access),
+            fieldName,
+            descriptor,
+            signature?.let { "<$it>" }).joinToString(" ")
+    }
+
+    override fun writeIntoDatabase() {
+        WorkspaceService.databaseTransaction {
+            JavaFieldTable.insert {
+                it[identifier] = this@FieldNameSymbol.identifier.databaseId
+                it[access] = this@FieldNameSymbol.access
+                it[name] = this@FieldNameSymbol.fieldName
+                it[descriptor] = this@FieldNameSymbol.descriptor
+                it[signature] = this@FieldNameSymbol.signature
+                it[sourceFile] = this@FieldNameSymbol.sourceFile?.resource
+            }
+        }
     }
 
     /**

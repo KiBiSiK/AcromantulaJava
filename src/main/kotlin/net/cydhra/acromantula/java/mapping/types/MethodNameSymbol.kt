@@ -1,29 +1,36 @@
 package net.cydhra.acromantula.java.mapping.types
 
-import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
+import net.cydhra.acromantula.java.mapping.database.JavaIdentifier
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
+import net.cydhra.acromantula.java.util.Visibility
+import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
-import net.cydhra.acromantula.workspace.filesystem.FileTable
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.insert
 import org.objectweb.asm.commons.Remapper
 
 object JavaMethodTable : IntIdTable() {
     val identifier = reference("identifier", JavaIdentifierTable)
+    val access = integer("access")
     val name = varchar("name", Short.MAX_VALUE.toInt())
-    val sourceFile = reference("file", FileTable)
+    val descriptor = varchar("descriptor", Short.MAX_VALUE.toInt())
+    val signature = varchar("signature", Short.MAX_VALUE.toInt()).nullable()
+    val sourceFile = integer("source_file").nullable()
 }
 
-class MethodNameSymbol() : AcromantulaSymbol {
-
+class MethodNameSymbol(
+    val identifier: JavaIdentifier,
+    val access: Int,
+    private var methodName: String,
+    val descriptor: String,
+    val signature: String?,
+    override val sourceFile: FileEntity?
+) : JavaSymbol() {
     override val canBeRenamed: Boolean
         get() = true
 
-    override val sourceFile: FileEntity
-        get() = TODO("not yet implemented")
-
     override fun getName(): String {
-        TODO("not yet implemented")
-//        return methodName
+        return methodName
     }
 
     override suspend fun updateName(newName: String) {
@@ -48,9 +55,23 @@ class MethodNameSymbol() : AcromantulaSymbol {
         TODO("not yet implemented")
     }
 
+    override fun writeIntoDatabase() {
+        WorkspaceService.databaseTransaction {
+            JavaMethodTable.insert {
+                it[identifier] = this@MethodNameSymbol.identifier.databaseId
+                it[access] = this@MethodNameSymbol.access
+                it[name] = this@MethodNameSymbol.methodName
+                it[descriptor] = this@MethodNameSymbol.descriptor
+                it[signature] = this@MethodNameSymbol.signature
+                it[sourceFile] = this@MethodNameSymbol.sourceFile?.resource
+            }
+        }
+    }
+
     override fun displayString(): String {
-//        return "visibility returnType $methodName descriptor"
-        TODO("not yet implemented")
+        return listOfNotNull(
+            Visibility.fromAccess(access).token, signature?.let { "<$it>" }, methodName, descriptor
+        ).joinToString(" ")
     }
 
     /**
