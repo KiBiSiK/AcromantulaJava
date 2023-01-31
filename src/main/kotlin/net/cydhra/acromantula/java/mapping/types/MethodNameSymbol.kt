@@ -7,6 +7,7 @@ import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.objectweb.asm.commons.Remapper
 
 object JavaMethodTable : IntIdTable() {
@@ -26,6 +27,31 @@ class MethodNameSymbol(
     val signature: String?,
     override val sourceFile: FileEntity?
 ) : JavaSymbol() {
+
+    companion object {
+        /**
+         * Select all class name symbols from a file. This method must not be used during a mapping job
+         *
+         * @param fileEntity a file that has already been mapped
+         */
+        fun getFromFile(fileEntity: FileEntity): List<MethodNameSymbol> {
+            return WorkspaceService.databaseTransaction {
+                (JavaMethodTable leftJoin JavaIdentifierTable).select { JavaMethodTable.sourceFile eq fileEntity.resource }
+                    .map { result ->
+                        MethodNameSymbol(
+                            identifier = JavaIdentifier(result[JavaIdentifierTable.identifier]).apply {
+                                databaseId = result[JavaIdentifierTable.id]
+                            },
+                            access = result[JavaMethodTable.access],
+                            methodName = result[JavaMethodTable.name],
+                            descriptor = result[JavaMethodTable.descriptor],
+                            signature = result[JavaMethodTable.signature],
+                            sourceFile = result[JavaMethodTable.sourceFile]?.let { WorkspaceService.queryPath(it) })
+                    }
+            }
+        }
+    }
+
     override val canBeRenamed: Boolean
         get() = true
 

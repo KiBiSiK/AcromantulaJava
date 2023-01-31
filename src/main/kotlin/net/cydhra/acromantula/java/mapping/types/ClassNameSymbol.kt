@@ -11,6 +11,7 @@ import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.objectweb.asm.commons.Remapper
 
 /**
@@ -32,6 +33,29 @@ class ClassNameSymbol(
     val signature: String?,
     override val sourceFile: FileEntity?,
 ) : JavaSymbol() {
+
+    companion object {
+        /**
+         * Select all class name symbols from a file. This method must not be used during a mapping job
+         *
+         * @param fileEntity a file that has already been mapped
+         */
+        fun getFromFile(fileEntity: FileEntity): List<ClassNameSymbol> {
+            return WorkspaceService.databaseTransaction {
+                (JavaClassTable leftJoin JavaIdentifierTable).select { JavaClassTable.sourceFile eq fileEntity.resource }
+                    .map { result ->
+                        ClassNameSymbol(
+                            identifier = JavaIdentifier(result[JavaIdentifierTable.identifier]).apply {
+                                databaseId = result[JavaIdentifierTable.id]
+                            },
+                            access = result[JavaClassTable.access],
+                            className = result[JavaClassTable.name],
+                            signature = result[JavaClassTable.signature],
+                            sourceFile = result[JavaClassTable.sourceFile]?.let { WorkspaceService.queryPath(it) })
+                    }
+            }
+        }
+    }
 
     override val canBeRenamed: Boolean
         get() = true
@@ -68,12 +92,10 @@ class ClassNameSymbol(
     }
 
     override fun displayString(): String {
-        return listOfNotNull(
-            Visibility.fromAccess(access).token,
+        return listOfNotNull(Visibility.fromAccess(access).token,
             ClassKind.fromAccess(access).token,
             className,
-            signature?.let { "<$it>" }
-        ).joinToString(" ")
+            signature?.let { "<$it>" }).joinToString(" ")
     }
 
     override fun writeIntoDatabase() {

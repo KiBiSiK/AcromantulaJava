@@ -6,6 +6,8 @@ import net.cydhra.acromantula.features.view.GenerateViewFeature
 import net.cydhra.acromantula.java.mapping.JavaClassMapper
 import net.cydhra.acromantula.java.mapping.database.JavaIdentifierTable
 import net.cydhra.acromantula.java.mapping.types.JavaClassTable
+import net.cydhra.acromantula.java.mapping.types.JavaFieldTable
+import net.cydhra.acromantula.java.mapping.types.JavaMethodTable
 import net.cydhra.acromantula.java.transfomers.analysis.cp.ConstantPropagationTransformer
 import net.cydhra.acromantula.java.transfomers.analysis.elimination.DeadVariableEliminationTransformer
 import net.cydhra.acromantula.java.view.disassembly.DisassemblyViewGenerator
@@ -35,7 +37,9 @@ class JavaPlugin : AcromantulaPlugin {
         WorkspaceService.registerAtDatabase {
             SchemaUtils.createMissingTablesAndColumns(
                 JavaIdentifierTable,
-                JavaClassTable
+                JavaClassTable,
+                JavaFieldTable,
+                JavaMethodTable
             )
         }
 

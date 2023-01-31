@@ -1,8 +1,13 @@
 package net.cydhra.acromantula.java.mapping
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.cydhra.acromantula.features.mapper.AcromantulaReference
 import net.cydhra.acromantula.features.mapper.AcromantulaSymbol
 import net.cydhra.acromantula.features.mapper.FileMapper
+import net.cydhra.acromantula.java.mapping.types.ClassNameSymbol
+import net.cydhra.acromantula.java.mapping.types.FieldNameSymbol
+import net.cydhra.acromantula.java.mapping.types.MethodNameSymbol
 import net.cydhra.acromantula.java.mapping.visitors.MappingClassVisitor
 import net.cydhra.acromantula.java.mapping.visitors.accept
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
@@ -53,13 +58,17 @@ class JavaClassMapper : FileMapper<ClassMapperContext> {
     }
 
     override suspend fun getSymbolsInFile(
-        file: FileEntity, predicate: ((AcromantulaSymbol) -> Boolean)?
+        file: FileEntity
     ): Collection<AcromantulaSymbol> {
-        TODO("not implemented")
+        return withContext(Dispatchers.IO) {
+            ClassNameSymbol.getFromFile(file)
+                .union(FieldNameSymbol.getFromFile(file))
+                .union(MethodNameSymbol.getFromFile(file))
+        }
     }
 
     override suspend fun getReferencesInFile(
-        file: FileEntity, predicate: ((AcromantulaReference) -> Boolean)?
+        file: FileEntity
     ): Collection<AcromantulaReference> {
         TODO("not implemented")
     }

@@ -7,6 +7,7 @@ import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.objectweb.asm.commons.Remapper
 
 object JavaFieldTable : IntIdTable() {
@@ -26,6 +27,31 @@ class FieldNameSymbol(
     val signature: String?,
     override var sourceFile: FileEntity?
 ) : JavaSymbol() {
+
+    companion object {
+        /**
+         * Select all field name symbols from a file. This method must not be used during a mapping job
+         *
+         * @param fileEntity a file that has already been mapped
+         */
+        fun getFromFile(fileEntity: FileEntity): List<FieldNameSymbol> {
+            return WorkspaceService.databaseTransaction {
+                (JavaFieldTable leftJoin JavaIdentifierTable).select { JavaFieldTable.sourceFile eq fileEntity.resource }
+                    .map { result ->
+                        FieldNameSymbol(
+                            identifier = JavaIdentifier(result[JavaIdentifierTable.identifier]).apply {
+                                databaseId = result[JavaIdentifierTable.id]
+                            },
+                            access = result[JavaFieldTable.access],
+                            fieldName = result[JavaFieldTable.name],
+                            descriptor = result[JavaFieldTable.descriptor],
+                            signature = result[JavaFieldTable.signature],
+                            sourceFile = result[JavaFieldTable.sourceFile]?.let { WorkspaceService.queryPath(it) })
+                    }
+            }
+        }
+    }
+
     override val canBeRenamed: Boolean
         get() = true
 
